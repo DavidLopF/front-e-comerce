@@ -17,7 +17,7 @@ interface ProductFiltersProps {
 export default function ProductFilters({ onFiltersChange, categories }: ProductFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     category: '',
-    priceRange: [0, 2000],
+    priceRange: [0, 200000], // Rango en centavos (0 a $2000)
     searchTerm: '',
     sortBy: 'name'
   });
@@ -31,7 +31,7 @@ export default function ProductFilters({ onFiltersChange, categories }: ProductF
   const clearFilters = () => {
     const clearedFilters = {
       category: '',
-      priceRange: [0, 2000],
+      priceRange: [0, 200000], // Rango en centavos (0 a $2000)
       searchTerm: '',
       sortBy: 'name'
     };
@@ -122,7 +122,7 @@ export default function ProductFilters({ onFiltersChange, categories }: ProductF
             />
           </div>
           <div className="text-sm text-gray-600">
-            ${filters.priceRange[0].toLocaleString('es-CO')} - ${filters.priceRange[1].toLocaleString('es-CO')}
+            ${(filters.priceRange[0] / 100).toLocaleString('es-CO')} - ${(filters.priceRange[1] / 100).toLocaleString('es-CO')}
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function ProductFilters({ onFiltersChange, categories }: ProductF
               </span>
             )}
             <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
-              ${filters.priceRange[0].toLocaleString('es-CO')} - ${filters.priceRange[1].toLocaleString('es-CO')}
+              ${(filters.priceRange[0] / 100).toLocaleString('es-CO')} - ${(filters.priceRange[1] / 100).toLocaleString('es-CO')}
             </span>
           </div>
         </div>

@@ -4,8 +4,8 @@ import { Product } from "../types/Product";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
-      <Link href={`/producto/${product.slug}`} className="block">
+    <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col">
+      <Link href={`/producto/${product.slug}`} className="h-full flex flex-col">
         {/* Imagen del producto */}
         <div className="relative overflow-hidden">
           {product.imageUrl ? (
@@ -38,16 +38,22 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Contenido del producto */}
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
-            {product.name}
-          </h3>
+        <div className="p-6 flex flex-col flex-grow">
+          {/* Título con altura fija */}
+          <div className="h-16 flex items-start mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+              {product.name}
+            </h3>
+          </div>
           
-          {product.description && (
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-              {product.description}
-            </p>
-          )}
+          {/* Descripción con altura fija */}
+          <div className="h-10 flex items-start mb-4">
+            {product.description && (
+              <p className="text-sm text-gray-600 line-clamp-2">
+                {product.description}
+              </p>
+            )}
+          </div>
 
           {/* Precio */}
           <div className="flex items-center justify-between mb-4">
@@ -64,13 +70,15 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
           </div>
 
-          {/* Botón de agregar al carrito */}
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold transition-colors duration-300 flex items-center justify-center space-x-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-            </svg>
-            <span>Agregar al carrito</span>
-          </button>
+          {/* Botón de agregar al carrito - siempre al final */}
+          <div className="mt-auto">
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold transition-colors duration-300 flex items-center justify-center space-x-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+              </svg>
+              <span>Agregar al carrito</span>
+            </button>
+          </div>
         </div>
       </Link>
     </div>

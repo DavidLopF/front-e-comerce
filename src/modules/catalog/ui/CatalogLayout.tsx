@@ -18,7 +18,7 @@ export default function CatalogLayout() {
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
     category: '',
-    priceRange: [0, 2000],
+    priceRange: [0, 200000], // Rango en centavos (0 a $2000)
     searchTerm: '',
     sortBy: 'name'
   });
@@ -68,7 +68,7 @@ export default function CatalogLayout() {
 
     // Filtro por rango de precios
     filtered = filtered.filter(product =>
-      product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+      product.priceCents >= filters.priceRange[0] && product.priceCents <= filters.priceRange[1]
     );
 
     // Ordenar productos
@@ -79,9 +79,9 @@ export default function CatalogLayout() {
         case 'name-desc':
           return b.name.localeCompare(a.name);
         case 'price':
-          return a.price - b.price;
+          return a.priceCents - b.priceCents;
         case 'price-desc':
-          return b.price - a.price;
+          return b.priceCents - a.priceCents;
         default:
           return 0;
       }
@@ -169,7 +169,7 @@ export default function CatalogLayout() {
             <button
               onClick={() => setFilters({
                 category: '',
-                priceRange: [0, 2000],
+                priceRange: [0, 200000], // Rango en centavos (0 a $2000)
                 searchTerm: '',
                 sortBy: 'name'
               })}
