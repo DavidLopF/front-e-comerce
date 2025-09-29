@@ -1,6 +1,7 @@
 
 import Link from "next/link";
 import { Product } from "../types/Product";
+import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
@@ -58,16 +59,26 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* Precio */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-gray-900">
-                ${(product.priceCents / 100).toLocaleString("es-CO")}
-              </span>
-              <span className="text-sm text-gray-500 line-through">
-                ${((product.priceCents * 1.2) / 100).toLocaleString("es-CO")}
-              </span>
+              {product.discount ? (
+                <>
+                  <span className="text-2xl font-bold text-gray-900">
+                    {formatPriceCOP(product.priceCents * (100 - product.discount) / 100)}
+                  </span>
+                  <span className="text-sm text-gray-500 line-through">
+                    {formatPriceCOP(product.priceCents)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl font-bold text-gray-900">
+                  {formatPriceCOP(product.priceCents)}
+                </span>
+              )}
             </div>
-            <div className="text-sm text-green-600 font-medium">
-              -17%
-            </div>
+            {product.discount && (
+              <div className="text-sm text-green-600 font-medium">
+                -{product.discount}%
+              </div>
+            )}
           </div>
 
           {/* Botón de agregar al carrito - siempre al final */}
