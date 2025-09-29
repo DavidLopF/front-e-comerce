@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Product } from "../types/Product";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
+import { useCartStore } from "@/shared/store/cartStore";
 
 interface ProductDetailProps {
   product: Product;
@@ -12,10 +13,22 @@ interface ProductDetailProps {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(product.imageUrl || "");
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  
+  const addItem = useCartStore((state) => state.addItem);
+  const cartTotalItems = useCartStore((state) => state.getTotalItems());
 
   const handleAddToCart = () => {
-    // Aquí implementarías la lógica para agregar al carrito
-    console.log(`Agregando ${quantity} unidades de ${product.name} al carrito`);
+    addItem(product, quantity);
+    setShowSuccessMessage(true);
+    
+    // Ocultar el mensaje después de 3 segundos
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 3000);
+    
+    // Resetear la cantidad a 1
+    setQuantity(1);
   };
 
   // Ya no necesitamos esta función, usamos formatPriceCOP directamente
@@ -89,7 +102,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               
               <div className="flex items-center space-x-4 mb-6">
                 <div className="flex items-center space-x-2">
-                  {product.discount ? (
+                  {product.discount && product.discount > 0 ? (
                     <>
                       <span className="text-4xl font-bold text-gray-900">
                         {formatPriceCOP(product.priceCents * (100 - product.discount) / 100)}
@@ -104,7 +117,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     </span>
                   )}
                 </div>
-                {product.discount && (
+                {product.discount && product.discount > 0 && (
                   <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
                     -{product.discount}% OFF
                   </div>
@@ -149,41 +162,58 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Cantidad</h3>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center border border-gray-300 rounded-lg">
+                <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                    className="px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 transition-colors font-bold"
+                    disabled={quantity <= 1}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
                     </svg>
                   </button>
-                  <span className="px-4 py-2 border-x border-gray-300 font-semibold">
-                    {quantity}
-                  </span>
+                  <input
+                    type="text"
+                    value={quantity}
+                    readOnly
+                    className="w-16 px-4 py-3 text-center text-lg font-bold text-gray-900 border-x-2 border-gray-300 bg-gray-50"
+                  />
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                    className="px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors font-bold"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </button>
                 </div>
-                <span className="text-sm text-gray-600">
-                  Total: {formatPriceCOP((product.discount ? product.priceCents * (100 - product.discount) / 100 : product.priceCents) * quantity)}
-                </span>
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Total:</span>
+                  <span className="block text-xl font-bold text-gray-900">
+                    {formatPriceCOP((product.discount && product.discount > 0 ? product.priceCents * (100 - product.discount) / 100 : product.priceCents) * quantity)}
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Mensaje de éxito */}
+            {showSuccessMessage && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl flex items-center space-x-3 animate-fade-in">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-semibold">¡Producto agregado al carrito! ({cartTotalItems} {cartTotalItems === 1 ? 'producto' : 'productos'})</span>
+              </div>
+            )}
 
             {/* Botones de acción */}
             <div className="space-y-4">
               <button
                 onClick={handleAddToCart}
                 disabled={!product.active}
-                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center space-x-3 ${
+                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all flex items-center justify-center space-x-3 ${
                   product.active
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >

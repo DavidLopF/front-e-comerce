@@ -1,0 +1,236 @@
+"use client";
+
+import { useState } from "react";
+import { useCartStore } from "@/shared/store/cartStore";
+import { formatPriceCOP } from "@/shared/utils/priceFormatter";
+import Link from "next/link";
+import Image from "next/image";
+
+export default function CarritoPage() {
+  const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
+  const [removingItemId, setRemovingItemId] = useState<string | null>(null);
+
+  const totalPrice = getTotalPrice();
+
+  // Manejar eliminación con animación
+  const handleRemoveItem = (productId: string) => {
+    setRemovingItemId(productId);
+    // Esperar a que termine la animación antes de eliminar
+    setTimeout(() => {
+      removeItem(productId);
+      setRemovingItemId(null);
+    }, 300); // Duración de la animación
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <svg className="w-32 h-32 mx-auto text-gray-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+          </svg>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Tu carrito está vacío</h1>
+          <p className="text-gray-600 mb-8">¡Agrega algunos productos para comenzar!</p>
+          <Link 
+            href="/store" 
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Ir a la tienda
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <h1 className="text-3xl font-bold text-gray-900">Mi Carrito</h1>
+          <p className="text-gray-600 mt-2">{items.length} {items.length === 1 ? 'producto' : 'productos'} en tu carrito</p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Lista de productos */}
+          <div className="lg:col-span-2 space-y-4">
+            {items.map((item) => {
+              const finalPrice = item.product.discount && item.product.discount > 0
+                ? item.product.priceCents * (100 - item.product.discount) / 100
+                : item.product.priceCents;
+
+              return (
+                <div 
+                  key={item.product.id} 
+                  className={`bg-white rounded-xl shadow-sm p-4 sm:p-6 ${removingItemId === item.product.id ? 'cart-item-removing' : ''}`}
+                >
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    {/* Imagen del producto */}
+                    <div className="w-full sm:w-32 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                      {item.product.imageUrl ? (
+                        <img
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Información del producto */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1 min-w-0">
+                          <Link 
+                            href={`/producto/${item.product.slug}`}
+                            className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 block truncate"
+                          >
+                            {item.product.name}
+                          </Link>
+                          {item.product.discount && item.product.discount > 0 && (
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className="text-sm text-gray-500 line-through">
+                                {formatPriceCOP(item.product.priceCents)}
+                              </span>
+                              <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">
+                                -{item.product.discount}% OFF
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleRemoveItem(item.product.id)}
+                          disabled={removingItemId === item.product.id}
+                          className="text-red-500 hover:text-red-700 p-2 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Eliminar producto"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        {/* Selector de cantidad */}
+                        <div className="flex items-center justify-center sm:justify-start">
+                          <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 transition-colors font-bold"
+                              disabled={item.quantity <= 1}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
+                              </svg>
+                            </button>
+                            <input
+                              type="text"
+                              value={item.quantity}
+                              readOnly
+                              className="w-14 px-3 py-2 text-center text-base font-bold text-gray-900 border-x-2 border-gray-300 bg-gray-50"
+                            />
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                              className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors font-bold"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Precio total del item */}
+                        <div className="text-center sm:text-right">
+                          <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                            {formatPriceCOP(finalPrice * item.quantity)}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatPriceCOP(finalPrice)} c/u
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Botón para vaciar carrito */}
+            <button
+              onClick={clearCart}
+              className="text-red-600 hover:text-red-700 font-semibold flex items-center space-x-2 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Vaciar carrito</span>
+            </button>
+          </div>
+
+          {/* Resumen del pedido */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 sticky top-20 lg:top-24">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Resumen del pedido</h2>
+              
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                <div className="flex justify-between text-sm sm:text-base text-gray-600">
+                  <span className="break-words">Subtotal ({items.reduce((total, item) => total + item.quantity, 0)} productos)</span>
+                  <span className="font-semibold flex-shrink-0 ml-2">{formatPriceCOP(totalPrice)}</span>
+                </div>
+                <div className="flex justify-between text-sm sm:text-base text-gray-600">
+                  <span>Envío</span>
+                  <span className="font-semibold text-green-600 flex-shrink-0 ml-2">
+                    {totalPrice >= 5000000 ? "GRATIS" : formatPriceCOP(50000)}
+                  </span>
+                </div>
+                <div className="border-t pt-3 sm:pt-4">
+                  <div className="flex justify-between text-base sm:text-lg font-bold text-gray-900">
+                    <span>Total</span>
+                    <span className="flex-shrink-0 ml-2">{formatPriceCOP(totalPrice >= 5000000 ? totalPrice : totalPrice + 50000)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl mb-3 sm:mb-4">
+                Proceder al pago
+              </button>
+
+              <Link 
+                href="/store"
+                className="block text-center text-blue-600 hover:text-blue-700 font-semibold transition-colors text-sm sm:text-base"
+              >
+                Continuar comprando
+              </Link>
+
+              {/* Información de envío gratis */}
+              {totalPrice < 5000000 && (
+                <div className="mt-4 sm:mt-6 bg-blue-50 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs sm:text-sm text-blue-900 font-semibold mb-1">
+                    ¡Envío gratis en compras superiores a {formatPriceCOP(5000000)}!
+                  </p>
+                  <p className="text-xs sm:text-sm text-blue-700 mb-2">
+                    Te faltan {formatPriceCOP(5000000 - totalPrice)} para obtener envío gratis
+                  </p>
+                  <div className="bg-blue-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

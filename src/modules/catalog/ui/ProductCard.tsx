@@ -1,11 +1,31 @@
 
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Product } from "../types/Product";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
+import { useCartStore } from "@/shared/store/cartStore";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Evitar que se ejecute el link
+    e.stopPropagation(); // Evitar que se propague al contenedor
+    
+    addItem(product, 1);
+    setShowSuccessMessage(true);
+    
+    // Ocultar el mensaje después de 2 segundos
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 2000);
+  };
+
   return (
-    <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col">
+    <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col relative">
       <Link href={`/producto/${product.slug}`} className="h-full flex flex-col">
         {/* Imagen del producto */}
         <div className="relative overflow-hidden">
@@ -59,7 +79,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* Precio */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              {product.discount ? (
+              {product.discount && product.discount > 0 ? (
                 <>
                   <span className="text-2xl font-bold text-gray-900">
                     {formatPriceCOP(product.priceCents * (100 - product.discount) / 100)}
@@ -74,7 +94,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 </span>
               )}
             </div>
-            {product.discount && (
+            {product.discount && product.discount > 0 && (
               <div className="text-sm text-green-600 font-medium">
                 -{product.discount}%
               </div>
@@ -83,15 +103,33 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Botón de agregar al carrito - siempre al final */}
           <div className="mt-auto">
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold transition-colors duration-300 flex items-center justify-center space-x-2">
+            <button 
+              onClick={handleAddToCart}
+              disabled={!product.active}
+              className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                product.active
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
               </svg>
-              <span>Agregar al carrito</span>
+              <span>{product.active ? "Agregar al carrito" : "No disponible"}</span>
             </button>
           </div>
         </div>
       </Link>
+
+      {/* Mensaje de éxito */}
+      {showSuccessMessage && (
+        <div className="absolute top-4 left-4 right-4 bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded-lg flex items-center space-x-2 animate-fade-in z-10">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-sm font-semibold">¡Agregado!</span>
+        </div>
+      )}
     </div>
   );
 }
