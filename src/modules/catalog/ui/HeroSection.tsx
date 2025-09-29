@@ -62,7 +62,7 @@ export default function HeroSection() {
     setCurrentSlide((prev) => (prev - 1 + activeSlides.length) % activeSlides.length);
   };
 
-  const scrollToCatalog = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const scrollToCatalog = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     const catalogElement = document.getElementById('catalogo');
     if (catalogElement) {
