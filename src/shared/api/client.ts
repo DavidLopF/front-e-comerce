@@ -160,7 +160,7 @@ export const api = {
       throw new Error(`Endpoint mock no disponible: ${url}`);
     }
   },
-  post: async <T>(url: string, body: any, init?: RequestInit): Promise<T> => {
+  post: async <T>(url: string, body: unknown, init?: RequestInit): Promise<T> => {
     const apiUrl = getApiUrl();
     if (!apiUrl) {
       throw new Error('NEXT_PUBLIC_API_URL no está configurada');

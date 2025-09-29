@@ -3,13 +3,14 @@ import { productService } from "@/modules/catalog/services/ProductSevice";
 import ProductDetail from "@/modules/catalog/ui/ProductDetail";
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await productService.getBySlug(params.slug);
+  const { slug } = await params;
+  const product = await productService.getBySlug(slug);
 
   if (!product) {
     notFound();
@@ -19,7 +20,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const product = await productService.getBySlug(params.slug);
+  const { slug } = await params;
+  const product = await productService.getBySlug(slug);
 
   if (!product) {
     return {

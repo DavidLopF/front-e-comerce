@@ -22,16 +22,16 @@ export default function ProductFilters({ onFiltersChange, categories }: ProductF
     sortBy: 'name'
   });
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = (key: keyof FilterState, value: string | [number, number]) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
   const clearFilters = () => {
-    const clearedFilters = {
+    const clearedFilters: FilterState = {
       category: '',
-      priceRange: [0, 200000], // Rango en centavos (0 a $2000)
+      priceRange: [0, 200000] as [number, number], // Rango en centavos (0 a $2000)
       searchTerm: '',
       sortBy: 'name'
     };
@@ -151,7 +151,7 @@ export default function ProductFilters({ onFiltersChange, categories }: ProductF
           <div className="mt-2 space-y-1">
             {filters.searchTerm && (
               <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">
-                Búsqueda: "{filters.searchTerm}"
+                Búsqueda: &quot;{filters.searchTerm}&quot;
               </span>
             )}
             {filters.category && (

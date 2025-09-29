@@ -43,7 +43,7 @@ export default function CatalogLayout() {
 
   // Obtener categorías únicas de los productos
   const categories = useMemo(() => {
-    const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    const uniqueCategories = [...new Set(products.map(p => p.category).filter((cat): cat is string => Boolean(cat)))];
     return uniqueCategories.sort();
   }, [products]);
 
@@ -57,7 +57,7 @@ export default function CatalogLayout() {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchLower) ||
         product.description?.toLowerCase().includes(searchLower) ||
-        product.code.toLowerCase().includes(searchLower)
+        product.slug.toLowerCase().includes(searchLower)
       );
     }
 
