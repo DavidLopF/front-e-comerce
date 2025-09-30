@@ -149,55 +149,55 @@ export default function HeroSection() {
                         className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight"
                         style={{ color: slide.textColor || '#ffffff' }}
                       >
-                        {slide.title}
+                          {slide.title}
                       </h1>
                       {slide.subtitle && (
                         <h2 
                           className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6"
                           style={{ color: slide.textColor || '#ffffff' }}
                         >
-                          {slide.subtitle}
-                        </h2>
+                        {slide.subtitle}
+                      </h2>
                       )}
                       {slide.description && (
                         <p 
                           className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 lg:mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
                           style={{ color: slide.textColor || '#ffffff' }}
                         >
-                          {slide.description}
-                        </p>
+                        {slide.description}
+                      </p>
                       )}
                       
                       {/* Botones dinámicos */}
                       {(slide.cta || slide.secondaryCta) && (
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start mb-16 sm:mb-20 lg:mb-24">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start mb-16 sm:mb-20 lg:mb-24">
                           {slide.cta && (
                             <a
                               href={slide.cta.link}
                               className={`inline-block px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl ${
-                                slide.cta.style === 'primary' ? 'text-white' :
-                                slide.cta.style === 'secondary' ? 'text-white' :
-                                slide.cta.style === 'accent' ? 'text-white' :
+                                slide.cta?.style === 'primary' ? 'text-white' :
+                                slide.cta?.style === 'secondary' ? 'text-white' :
+                                slide.cta?.style === 'accent' ? 'text-white' :
                                 'border-2 border-white text-white hover:bg-white hover:text-gray-900'
                               }`}
-                              style={slide.cta.style === 'primary' ? {
+                              style={slide.cta?.style === 'primary' ? {
                                 backgroundColor: normalizedPrimary,
-                              } : slide.cta.style === 'secondary' ? {
+                              } : slide.cta?.style === 'secondary' ? {
                                 backgroundColor: normalizedSecondary,
-                              } : slide.cta.style === 'accent' ? {
+                              } : slide.cta?.style === 'accent' ? {
                                 backgroundColor: normalizedAccent,
                               } : {}}
                               onMouseEnter={(e) => {
-                                if (slide.cta.style === 'primary') {
+                                if (slide.cta?.style === 'primary') {
                                   e.currentTarget.style.backgroundColor = primaryHover;
-                                } else if (slide.cta.style === 'secondary') {
+                                } else if (slide.cta?.style === 'secondary') {
                                   e.currentTarget.style.backgroundColor = secondaryHover;
                                 }
                               }}
                               onMouseLeave={(e) => {
-                                if (slide.cta.style === 'primary') {
+                                if (slide.cta?.style === 'primary') {
                                   e.currentTarget.style.backgroundColor = normalizedPrimary;
-                                } else if (slide.cta.style === 'secondary') {
+                                } else if (slide.cta?.style === 'secondary') {
                                   e.currentTarget.style.backgroundColor = normalizedSecondary;
                                 }
                               }}
@@ -209,29 +209,29 @@ export default function HeroSection() {
                             <a
                               href={slide.secondaryCta.link}
                               className={`inline-block px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 ${
-                                slide.secondaryCta.style === 'primary' ? 'text-white' :
-                                slide.secondaryCta.style === 'secondary' ? 'text-white' :
-                                slide.secondaryCta.style === 'accent' ? 'text-white' :
+                                slide.secondaryCta?.style === 'primary' ? 'text-white' :
+                                slide.secondaryCta?.style === 'secondary' ? 'text-white' :
+                                slide.secondaryCta?.style === 'accent' ? 'text-white' :
                                 'border-2 border-white text-white hover:bg-white hover:text-gray-900'
                               }`}
-                              style={slide.secondaryCta.style === 'primary' ? {
+                              style={slide.secondaryCta?.style === 'primary' ? {
                                 backgroundColor: normalizedPrimary,
-                              } : slide.secondaryCta.style === 'secondary' ? {
+                              } : slide.secondaryCta?.style === 'secondary' ? {
                                 backgroundColor: normalizedSecondary,
-                              } : slide.secondaryCta.style === 'accent' ? {
+                              } : slide.secondaryCta?.style === 'accent' ? {
                                 backgroundColor: normalizedAccent,
                               } : {}}
                               onMouseEnter={(e) => {
-                                if (slide.secondaryCta.style === 'primary') {
+                                if (slide.secondaryCta?.style === 'primary') {
                                   e.currentTarget.style.backgroundColor = primaryHover;
-                                } else if (slide.secondaryCta.style === 'secondary') {
+                                } else if (slide.secondaryCta?.style === 'secondary') {
                                   e.currentTarget.style.backgroundColor = secondaryHover;
                                 }
                               }}
                               onMouseLeave={(e) => {
-                                if (slide.secondaryCta.style === 'primary') {
+                                if (slide.secondaryCta?.style === 'primary') {
                                   e.currentTarget.style.backgroundColor = normalizedPrimary;
-                                } else if (slide.secondaryCta.style === 'secondary') {
+                                } else if (slide.secondaryCta?.style === 'secondary') {
                                   e.currentTarget.style.backgroundColor = normalizedSecondary;
                                 }
                               }}
@@ -239,7 +239,7 @@ export default function HeroSection() {
                               {slide.secondaryCta.text}
                             </a>
                           )}
-                        </div>
+                      </div>
                       )}
                     </div>
                     
@@ -272,47 +272,47 @@ export default function HeroSection() {
       {/* Navigation Arrows - Solo en desktop y si está habilitado */}
       {showArrows && activeSlides.length > 1 && (
         <>
-          <button
-            onClick={prevSlide}
-            className="hidden lg:block absolute left-6 top-1/2 transform -translate-y-1/2 z-50 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 border border-white/20 cursor-pointer"
-            aria-label="Slide anterior"
-            style={{ pointerEvents: 'auto' }}
-          >
-            <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <button
-            onClick={nextSlide}
-            className="hidden lg:block absolute right-6 top-1/2 transform -translate-y-1/2 z-50 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 border border-white/20 cursor-pointer"
-            aria-label="Siguiente slide"
-            style={{ pointerEvents: 'auto' }}
-          >
-            <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+      <button
+        onClick={prevSlide}
+        className="hidden lg:block absolute left-6 top-1/2 transform -translate-y-1/2 z-50 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 border border-white/20 cursor-pointer"
+        aria-label="Slide anterior"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      <button
+        onClick={nextSlide}
+        className="hidden lg:block absolute right-6 top-1/2 transform -translate-y-1/2 z-50 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 border border-white/20 cursor-pointer"
+        aria-label="Siguiente slide"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <svg className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
         </>
       )}
 
       {/* Dots Indicator - Solo si está habilitado */}
       {showDots && activeSlides.length > 1 && (
-        <div className="absolute bottom-16 sm:bottom-20 lg:bottom-24 left-1/2 transform -translate-x-1/2 flex space-x-3 z-40">
-          {activeSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 border-2 cursor-pointer ${
-                index === currentSlide 
-                  ? 'bg-white border-white scale-125' 
-                  : 'bg-white/30 border-white/50 hover:bg-white/50'
-              }`}
-              aria-label={`Ir al slide ${index + 1}`}
-              style={{ pointerEvents: 'auto' }}
-            />
-          ))}
-        </div>
+      <div className="absolute bottom-16 sm:bottom-20 lg:bottom-24 left-1/2 transform -translate-x-1/2 flex space-x-3 z-40">
+        {activeSlides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 border-2 cursor-pointer ${
+              index === currentSlide 
+                ? 'bg-white border-white scale-125' 
+                : 'bg-white/30 border-white/50 hover:bg-white/50'
+            }`}
+            aria-label={`Ir al slide ${index + 1}`}
+            style={{ pointerEvents: 'auto' }}
+          />
+        ))}
+      </div>
       )}
 
       {/* Scroll Indicator - Reposicionado */}

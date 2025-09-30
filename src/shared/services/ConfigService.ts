@@ -111,6 +111,7 @@ function getMockConfig(): StoreConfig {
         primary: "#3b82f6",
         primaryHover: "#2563eb",
         secondary: "#8b5cf6",
+        secondaryHover: "#7c3aed",
         accent: "#f59e0b",
         background: "#ffffff",
         backgroundAlt: "#f9fafb",

@@ -31,6 +31,7 @@ export interface StoreConfig {
       primary: string;        // Color principal de la marca
       primaryHover: string;   // Color principal en hover
       secondary: string;      // Color secundario
+      secondaryHover: string; // Color secundario en hover
       accent: string;         // Color de acento para CTAs importantes
       
       // Colores de fondo
@@ -140,12 +141,12 @@ export interface HeroSlideConfig {
   cta?: {
     text: string;
     link: string;
-    style?: 'primary' | 'secondary' | 'outline';
+    style?: 'primary' | 'secondary' | 'outline' | 'accent';
   };
   secondaryCta?: {
     text: string;
     link: string;
-    style?: 'primary' | 'secondary' | 'outline';
+    style?: 'primary' | 'secondary' | 'outline' | 'accent';
   };
   order: number;
   isActive: boolean;
