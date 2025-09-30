@@ -5,12 +5,26 @@ import { useCartStore } from "@/shared/store/cartStore";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 import Link from "next/link";
 import Image from "next/image";
+import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 
 export default function CarritoPage() {
+  const { config } = useStoreConfigContext();
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
 
   const totalPrice = getTotalPrice();
+
+  // Colores dinámicos del tema
+  const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
+  const primaryHover = config?.theme?.colors?.primaryHover || primaryColor;
+
+  // Función para normalizar colores (agregar # si no lo tiene)
+  const normalizeColor = (color: string | undefined, fallback: string) => {
+    if (!color) return fallback;
+    return color.startsWith('#') ? color : `#${color}`;
+  };
+
+  const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
   // Manejar eliminación con animación
   const handleRemoveItem = (productId: string) => {
@@ -33,7 +47,16 @@ export default function CarritoPage() {
           <p className="text-gray-600 mb-8">¡Agrega algunos productos para comenzar!</p>
           <Link 
             href="/store" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+            className="inline-block text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+            style={{ 
+              backgroundColor: normalizedPrimary,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = primaryHover;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = normalizedPrimary;
+            }}
           >
             Ir a la tienda
           </Link>
@@ -90,7 +113,13 @@ export default function CarritoPage() {
                         <div className="flex-1 min-w-0">
                           <Link 
                             href={`/producto/${item.product.slug}`}
-                            className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 block truncate"
+                            className="text-base sm:text-lg font-semibold text-gray-900 block truncate transition-colors"
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = normalizedPrimary;
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#111827';
+                            }}
                           >
                             {item.product.name}
                           </Link>
@@ -138,7 +167,17 @@ export default function CarritoPage() {
                             />
                             <button
                               onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors font-bold"
+                              className="px-3 py-2 transition-colors font-bold"
+                              style={{
+                                backgroundColor: `${normalizedPrimary}20`,
+                                color: normalizedPrimary,
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = `${normalizedPrimary}30`;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = `${normalizedPrimary}20`;
+                              }}
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -199,30 +238,63 @@ export default function CarritoPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl mb-3 sm:mb-4">
+              <button 
+                className="w-full text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl mb-3 sm:mb-4"
+                style={{ 
+                  backgroundColor: normalizedPrimary,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = primaryHover;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = normalizedPrimary;
+                }}
+              >
                 Proceder al pago
               </button>
 
               <Link 
                 href="/store"
-                className="block text-center text-blue-600 hover:text-blue-700 font-semibold transition-colors text-sm sm:text-base"
+                className="block text-center font-semibold transition-colors text-sm sm:text-base"
+                style={{ color: normalizedPrimary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = primaryHover;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = normalizedPrimary;
+                }}
               >
                 Continuar comprando
               </Link>
 
               {/* Información de envío gratis */}
               {totalPrice < 5000000 && (
-                <div className="mt-4 sm:mt-6 bg-blue-50 rounded-lg p-3 sm:p-4">
-                  <p className="text-xs sm:text-sm text-blue-900 font-semibold mb-1">
+                <div 
+                  className="mt-4 sm:mt-6 rounded-lg p-3 sm:p-4"
+                  style={{ backgroundColor: `${normalizedPrimary}10` }}
+                >
+                  <p 
+                    className="text-xs sm:text-sm font-semibold mb-1"
+                    style={{ color: normalizedPrimary }}
+                  >
                     ¡Envío gratis en compras superiores a {formatPriceCOP(5000000)}!
                   </p>
-                  <p className="text-xs sm:text-sm text-blue-700 mb-2">
+                  <p 
+                    className="text-xs sm:text-sm mb-2"
+                    style={{ color: `${normalizedPrimary}CC` }}
+                  >
                     Te faltan {formatPriceCOP(5000000 - totalPrice)} para obtener envío gratis
                   </p>
-                  <div className="bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="rounded-full h-2"
+                    style={{ backgroundColor: `${normalizedPrimary}30` }}
+                  >
                     <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` }}
+                      className="h-2 rounded-full transition-all"
+                      style={{ 
+                        backgroundColor: normalizedPrimary,
+                        width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` 
+                      }}
                     />
                   </div>
                 </div>

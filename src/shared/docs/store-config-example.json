@@ -1,0 +1,310 @@
+{
+  "success": true,
+  "version": "1.0.0",
+  "lastUpdated": "2025-09-30T12:00:00Z",
+  "data": {
+    "store": {
+      "name": "TechStore Pro",
+      "description": "Tu tienda de tecnología de confianza",
+      "slogan": "La mejor tecnología al mejor precio",
+      "logo": {
+        "url": "https://cdn.ejemplo.com/logos/techstore-logo.png",
+        "alt": "TechStore Pro Logo",
+        "width": 180,
+        "height": 50
+      },
+      "favicon": "https://cdn.ejemplo.com/favicons/techstore-favicon.ico",
+      "contactEmail": "contacto@techstore.com",
+      "contactPhone": "+52 55 1234 5678",
+      "socialMedia": {
+        "facebook": "https://facebook.com/techstore",
+        "instagram": "https://instagram.com/techstore",
+        "twitter": "https://twitter.com/techstore",
+        "tiktok": "https://tiktok.com/@techstore",
+        "whatsapp": "https://wa.me/5255123456"
+      }
+    },
+    "theme": {
+      "colors": {
+        "primary": "#3b82f6",
+        "primaryHover": "#2563eb",
+        "secondary": "#8b5cf6",
+        "accent": "#f59e0b",
+        "background": "#ffffff",
+        "backgroundAlt": "#f9fafb",
+        "textPrimary": "#111827",
+        "textSecondary": "#6b7280",
+        "textMuted": "#9ca3af",
+        "success": "#10b981",
+        "error": "#ef4444",
+        "warning": "#f59e0b",
+        "info": "#3b82f6",
+        "border": "#e5e7eb",
+        "shadow": "rgba(0, 0, 0, 0.1)",
+        "overlay": "rgba(0, 0, 0, 0.5)"
+      },
+      "typography": {
+        "fontFamily": {
+          "primary": "'Inter', system-ui, sans-serif",
+          "secondary": "'Playfair Display', Georgia, serif"
+        },
+        "fontSize": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        }
+      },
+      "layout": {
+        "borderRadius": {
+          "sm": "0.25rem",
+          "md": "0.5rem",
+          "lg": "0.75rem",
+          "xl": "1rem",
+          "full": "9999px"
+        },
+        "maxWidth": "1280px"
+      }
+    },
+    "hero": {
+      "enabled": true,
+      "autoplay": true,
+      "autoplayInterval": 5000,
+      "showArrows": true,
+      "showDots": true,
+      "slides": [
+        {
+          "id": 1,
+          "title": "Bienvenidos a TechStore",
+          "subtitle": "La mejor tecnología al mejor precio",
+          "description": "Descubre nuestra amplia selección de productos tecnológicos de última generación",
+          "imageUrl": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+          "imageUrlMobile": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+          "cta": {
+            "text": "Ver Productos",
+            "link": "/store",
+            "style": "primary"
+          },
+          "secondaryCta": {
+            "text": "Saber Más",
+            "link": "/about",
+            "style": "outline"
+          },
+          "order": 1,
+          "isActive": true,
+          "alignment": "left",
+          "overlay": true,
+          "overlayOpacity": 0.5,
+          "backgroundColor": "#1e293b",
+          "textColor": "#ffffff"
+        },
+        {
+          "id": 2,
+          "title": "Ofertas de Temporada",
+          "subtitle": "Hasta 50% de descuento",
+          "description": "Aprovecha nuestras ofertas especiales en productos seleccionados",
+          "imageUrl": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+          "imageUrlMobile": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+          "cta": {
+            "text": "Ver Ofertas",
+            "link": "/store?filter=ofertas",
+            "style": "accent"
+          },
+          "order": 2,
+          "isActive": true,
+          "alignment": "center",
+          "overlay": true,
+          "overlayOpacity": 0.6
+        },
+        {
+          "id": 3,
+          "title": "Nuevos Lanzamientos",
+          "subtitle": "Lo último en tecnología",
+          "description": "Descubre los productos más innovadores del mercado",
+          "imageUrl": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+          "cta": {
+            "text": "Explorar",
+            "link": "/store?filter=nuevos",
+            "style": "primary"
+          },
+          "order": 3,
+          "isActive": true,
+          "alignment": "right",
+          "overlay": false
+        }
+      ]
+    },
+    "navigation": {
+      "showSearch": true,
+      "showCart": true,
+      "menuItems": [
+        {
+          "id": "home",
+          "label": "Inicio",
+          "href": "/"
+        },
+        {
+          "id": "store",
+          "label": "Tienda",
+          "href": "/store",
+          "children": [
+            {
+              "id": "electronics",
+              "label": "Electrónicos",
+              "href": "/store?category=electronics"
+            },
+            {
+              "id": "accessories",
+              "label": "Accesorios",
+              "href": "/store?category=accessories"
+            },
+            {
+              "id": "photography",
+              "label": "Fotografía",
+              "href": "/store?category=photography"
+            }
+          ]
+        },
+        {
+          "id": "offers",
+          "label": "Ofertas",
+          "href": "/store?filter=ofertas",
+          "badge": "Sale"
+        },
+        {
+          "id": "new",
+          "label": "Nuevos",
+          "href": "/store?filter=nuevos",
+          "badge": "New"
+        },
+        {
+          "id": "cart",
+          "label": "Carrito",
+          "href": "/carrito"
+        }
+      ]
+    },
+    "features": {
+      "enableWishlist": true,
+      "enableReviews": true,
+      "enableRelatedProducts": true,
+      "enableCompare": false,
+      "enableQuickView": true,
+      "maxCartItems": 99,
+      "showProductStock": true
+    },
+    "seo": {
+      "title": "TechStore Pro - Tu tienda de tecnología",
+      "description": "Encuentra los mejores productos de tecnología al mejor precio. Envíos a todo el país.",
+      "keywords": [
+        "tecnología",
+        "electrónicos",
+        "computadoras",
+        "smartphones",
+        "tablets",
+        "laptops",
+        "cámaras",
+        "accesorios"
+      ],
+      "ogImage": "https://cdn.ejemplo.com/og/techstore-og-image.jpg"
+    },
+    "checkout": {
+      "allowGuestCheckout": true,
+      "requiredFields": [
+        "name",
+        "email",
+        "phone",
+        "address",
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "shippingMethods": [
+        {
+          "id": "standard",
+          "name": "Envío Estándar",
+          "description": "Entrega en 5-7 días hábiles",
+          "priceCents": 9900,
+          "estimatedDays": "5-7 días",
+          "enabled": true
+        },
+        {
+          "id": "express",
+          "name": "Envío Express",
+          "description": "Entrega en 1-2 días hábiles",
+          "priceCents": 19900,
+          "estimatedDays": "1-2 días",
+          "enabled": true
+        },
+        {
+          "id": "nextday",
+          "name": "Envío al Día Siguiente",
+          "description": "Recíbelo mañana antes de las 6pm",
+          "priceCents": 29900,
+          "estimatedDays": "1 día",
+          "enabled": true
+        },
+        {
+          "id": "pickup",
+          "name": "Recoger en Tienda",
+          "description": "Recoge tu pedido sin costo adicional",
+          "priceCents": 0,
+          "estimatedDays": "1 día",
+          "enabled": true
+        }
+      ],
+      "paymentMethods": [
+        {
+          "id": "card",
+          "name": "Tarjeta de Crédito/Débito",
+          "type": "card",
+          "icon": "https://cdn.ejemplo.com/icons/credit-card.svg",
+          "enabled": true,
+          "description": "Visa, Mastercard, American Express"
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "type": "paypal",
+          "icon": "https://cdn.ejemplo.com/icons/paypal.svg",
+          "enabled": true
+        },
+        {
+          "id": "mercadopago",
+          "name": "Mercado Pago",
+          "type": "other",
+          "icon": "https://cdn.ejemplo.com/icons/mercadopago.svg",
+          "enabled": true
+        },
+        {
+          "id": "oxxo",
+          "name": "Pago en OXXO",
+          "type": "cash",
+          "icon": "https://cdn.ejemplo.com/icons/oxxo.svg",
+          "enabled": true,
+          "description": "Paga en efectivo en cualquier tienda OXXO"
+        },
+        {
+          "id": "spei",
+          "name": "Transferencia SPEI",
+          "type": "transfer",
+          "icon": "https://cdn.ejemplo.com/icons/bank.svg",
+          "enabled": true,
+          "description": "Transferencia bancaria inmediata"
+        },
+        {
+          "id": "transfer",
+          "name": "Transferencia Bancaria",
+          "type": "transfer",
+          "icon": "https://cdn.ejemplo.com/icons/bank.svg",
+          "enabled": true,
+          "description": "Recibirás los datos bancarios por email"
+        }
+      ]
+    }
+  }
+}

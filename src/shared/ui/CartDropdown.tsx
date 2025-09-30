@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "../store/cartStore";
 import { formatPriceCOP } from "../utils/priceFormatter";
+import { useStoreConfigContext } from "../providers/StoreConfigProvider";
 
 interface CartDropdownProps {
   isOpen: boolean;
@@ -11,10 +12,23 @@ interface CartDropdownProps {
 }
 
 export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
+  const { config } = useStoreConfigContext();
   const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
   const totalPrice = getTotalPrice();
   const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
+
+  // Colores dinámicos del tema
+  const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
+  const primaryHover = config?.theme?.colors?.primaryHover || primaryColor;
+
+  // Función para normalizar colores (agregar # si no lo tiene)
+  const normalizeColor = (color: string | undefined, fallback: string) => {
+    if (!color) return fallback;
+    return color.startsWith('#') ? color : `#${color}`;
+  };
+
+  const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
   // Función para reiniciar el timer de auto-cierre
   const resetAutoClose = () => {
@@ -140,7 +154,13 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                       <Link 
                         href={`/producto/${item.product.slug}`}
                         onClick={onClose}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 block truncate"
+                        className="text-sm font-medium text-gray-900 block truncate transition-colors"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = normalizedPrimary;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = '#111827';
+                        }}
                       >
                         {item.product.name}
                       </Link>
@@ -163,7 +183,17 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                               updateQuantity(item.product.id, item.quantity + 1);
                               handleUserInteraction();
                             }}
-                            className="w-6 h-6 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold"
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                            style={{
+                              backgroundColor: `${normalizedPrimary}20`,
+                              color: normalizedPrimary,
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = `${normalizedPrimary}30`;
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = `${normalizedPrimary}20`;
+                            }}
                           >
                             +
                           </button>
@@ -210,14 +240,26 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             {/* Información de envío */}
             {totalPrice < 5000000 && (
-              <div className="mb-3 p-2 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-700 font-medium">
+              <div 
+                className="mb-3 p-2 rounded-lg"
+                style={{ backgroundColor: `${normalizedPrimary}10` }}
+              >
+                <p 
+                  className="text-xs font-medium"
+                  style={{ color: normalizedPrimary }}
+                >
                   ¡Envío gratis en compras superiores a {formatPriceCOP(5000000)}!
                 </p>
-                <div className="mt-1 bg-blue-200 rounded-full h-1">
+                <div 
+                  className="mt-1 rounded-full h-1"
+                  style={{ backgroundColor: `${normalizedPrimary}30` }}
+                >
                   <div 
-                    className="bg-blue-600 h-1 rounded-full transition-all"
-                    style={{ width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` }}
+                    className="h-1 rounded-full transition-all"
+                    style={{ 
+                      backgroundColor: normalizedPrimary,
+                      width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` 
+                    }}
                   />
                 </div>
               </div>
@@ -234,7 +276,16 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
               <Link
                 href="/carrito"
                 onClick={onClose}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-colors text-center block"
+                className="w-full text-white py-2 px-4 rounded-lg font-semibold text-sm transition-colors text-center block"
+                style={{ 
+                  backgroundColor: normalizedPrimary,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = primaryHover;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = normalizedPrimary;
+                }}
               >
                 Ver carrito completo
               </Link>

@@ -6,10 +6,24 @@ import { useState } from "react";
 import { Product } from "../types/Product";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 import { useCartStore } from "@/shared/store/cartStore";
+import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { config } = useStoreConfigContext();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
+
+  // Colores dinámicos del tema
+  const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
+  const primaryHover = config?.theme?.colors?.primaryHover || primaryColor;
+
+  // Función para normalizar colores (agregar # si no lo tiene)
+  const normalizeColor = (color: string | undefined, fallback: string) => {
+    if (!color) return fallback;
+    return color.startsWith('#') ? color : `#${color}`;
+  };
+
+  const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Evitar que se ejecute el link
@@ -108,9 +122,22 @@ export default function ProductCard({ product }: { product: Product }) {
               disabled={!product.active}
               className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
                 product.active
-                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  ? "text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
+              style={product.active ? { 
+                backgroundColor: normalizedPrimary,
+              } : {}}
+              onMouseEnter={(e) => {
+                if (product.active) {
+                  e.currentTarget.style.backgroundColor = primaryHover;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (product.active) {
+                  e.currentTarget.style.backgroundColor = normalizedPrimary;
+                }
+              }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
