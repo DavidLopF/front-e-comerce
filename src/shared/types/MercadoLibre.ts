@@ -3,7 +3,7 @@
 export interface MercadoLibrePaymentRequest {
   items: MercadoLibreItem[];
   payer: MercadoLibrePayer;
-  back_urls: {
+  back_urls?: {
     success: string;
     failure: string;
     pending: string;
