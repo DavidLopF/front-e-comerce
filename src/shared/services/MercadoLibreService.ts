@@ -29,13 +29,8 @@ export class MercadoLibreService {
       unit_price: Math.round(this.calculateFinalPrice(item.product.priceCents, item.product.discount))
     }));
 
-    // Obtener la URL base - para sandbox usar una URL válida
-    let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    
-    // Si no hay URL configurada o es localhost, usar tu dominio real de Vercel
-    if (!baseUrl || baseUrl.includes('localhost')) {
-      baseUrl = 'https://front-e-comerce-seven.vercel.app';
-    }
+    // Obtener la URL base desde variables de entorno
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://front-e-comerce-seven.vercel.app';
     
     const paymentRequest: MercadoLibrePaymentRequest = {
       items,
@@ -75,7 +70,6 @@ export class MercadoLibreService {
       console.log('Creando preferencia con configuración:', {
         sandbox: this.isSandbox,
         baseUrl,
-        isProduction,
         itemsCount: items.length,
         userEmail,
         paymentRequest: JSON.stringify(paymentRequest, null, 2)
