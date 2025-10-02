@@ -29,11 +29,13 @@ export class MercadoLibreService {
       unit_price: Math.round(this.calculateFinalPrice(item.product.priceCents, item.product.discount))
     }));
 
-    // Obtener la URL base
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tu-dominio.vercel.app';
+    // Obtener la URL base - para sandbox usar una URL válida
+    let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     
-    // Para sandbox, usar URLs básicas sin localhost
-    const isProduction = !this.isSandbox && !baseUrl.includes('localhost');
+    // Si no hay URL configurada o es localhost, usar tu dominio real de Vercel
+    if (!baseUrl || baseUrl.includes('localhost')) {
+      baseUrl = 'https://front-e-comerce-seven.vercel.app';
+    }
     
     const paymentRequest: MercadoLibrePaymentRequest = {
       items,
@@ -49,24 +51,20 @@ export class MercadoLibreService {
           zip_code: "00000"
         } : undefined
       },
-      // Siempre incluir back_urls, pero usar URLs válidas
+      // URLs de retorno - siempre requeridas
       back_urls: {
         success: `${baseUrl}/pago/exito`,
         failure: `${baseUrl}/pago/error`,
         pending: `${baseUrl}/pago/pendiente`
       },
-      // Solo incluir notification_url en producción o con URL válida
-      ...(isProduction ? {
-        notification_url: `${baseUrl}/api/webhooks/mercadolibre`
-      } : {}),
       external_reference: externalReference,
-      // Configuraciones adicionales para sandbox
-      auto_return: 'approved',
-      // Configurar moneda correctamente
-      ...(this.isSandbox ? {
-        // Configuraciones específicas para sandbox
-      } : {})
+      auto_return: 'approved'
     };
+    
+    // Solo agregar notification_url si no estamos en localhost
+    if (!baseUrl.includes('localhost')) {
+      paymentRequest.notification_url = `${baseUrl}/api/webhooks/mercadolibre`;
+    }
 
     try {
       // Validar que tenemos el access token
