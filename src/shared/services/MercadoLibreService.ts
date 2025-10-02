@@ -33,20 +33,32 @@ export class MercadoLibreService {
     let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://front-e-comerce-seven.vercel.app';
     baseUrl = baseUrl.replace(/\/+$/, ''); // Remover slash final si existe
     
+    // Construir el payer sin campos undefined
+    const payer: any = {
+      email: userEmail
+    };
+    
+    if (customerInfo?.name) {
+      payer.name = customerInfo.name;
+    }
+    
+    if (customerInfo?.phone) {
+      payer.phone = {
+        number: customerInfo.phone
+      };
+    }
+    
+    if (customerInfo?.address) {
+      payer.address = {
+        street_name: customerInfo.address,
+        street_number: 1,
+        zip_code: "110111"
+      };
+    }
+    
     const paymentRequest: MercadoLibrePaymentRequest = {
       items,
-      payer: {
-        email: userEmail,
-        name: customerInfo?.name,
-        phone: customerInfo?.phone ? {
-          number: customerInfo.phone
-        } : undefined,
-        address: customerInfo?.address ? {
-          street_name: customerInfo.address,
-          street_number: 1,
-          zip_code: "110111" // Código postal válido para Colombia
-        } : undefined
-      },
+      payer,
       // URLs de retorno
       back_urls: {
         success: `${baseUrl}/pago/exito`,
