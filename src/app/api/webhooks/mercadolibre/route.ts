@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MercadoLibreService } from '@/shared/services/MercadoLibreService';
+import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBackendService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
     console.log('Webhook recibido de MercadoLibre:', { type, data });
 
     if (type === 'payment' && data?.id) {
-      const mercadoLibreService = new MercadoLibreService();
-      const paymentStatus = await mercadoLibreService.getPaymentStatus(data.id);
+      const mercadoLibreBackendService = new MercadoLibreBackendService();
+      const paymentStatus = await mercadoLibreBackendService.getPaymentStatus(data.id);
 
       console.log('Estado del pago:', paymentStatus);
 

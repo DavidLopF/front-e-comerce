@@ -7,7 +7,7 @@ export class MercadoLibreService {
   private readonly isSandbox: boolean;
 
   constructor() {
-    // Estas variables deben configurarse en las variables de entorno
+    // Para crear preferencias necesitamos el access token (clave privada)
     this.accessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN || '';
     this.isSandbox = process.env.NODE_ENV === 'development' || 
                      process.env.MERCADOLIBRE_SANDBOX === 'true' ||
@@ -29,13 +29,11 @@ export class MercadoLibreService {
       unit_price: Math.round(this.calculateFinalPrice(item.product.priceCents, item.product.discount))
     }));
 
-    // Obtener la URL base, con fallback a localhost para desarrollo
-    // Nota: Para pruebas locales, MercadoLibre no puede acceder a localhost
-    // Usa ngrok o una URL pública para pruebas
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Obtener la URL base
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tu-dominio.vercel.app';
     
-    // Para desarrollo local, usar URLs simples
-    const isLocalhost = baseUrl.includes('localhost');
+    // Para sandbox, usar URLs básicas sin localhost
+    const isProduction = !this.isSandbox && !baseUrl.includes('localhost');
     
     const paymentRequest: MercadoLibrePaymentRequest = {
       items,
@@ -51,28 +49,38 @@ export class MercadoLibreService {
           zip_code: "00000"
         } : undefined
       },
-      ...(isLocalhost ? {} : {
-        back_urls: {
-          success: `${baseUrl}/pago/exito`,
-          failure: `${baseUrl}/pago/error`,
-          pending: `${baseUrl}/pago/pendiente`
-        },
+      // Siempre incluir back_urls, pero usar URLs válidas
+      back_urls: {
+        success: `${baseUrl}/pago/exito`,
+        failure: `${baseUrl}/pago/error`,
+        pending: `${baseUrl}/pago/pendiente`
+      },
+      // Solo incluir notification_url en producción o con URL válida
+      ...(isProduction ? {
         notification_url: `${baseUrl}/api/webhooks/mercadolibre`
-      }),
-      external_reference: externalReference
+      } : {}),
+      external_reference: externalReference,
+      // Configuraciones adicionales para sandbox
+      auto_return: 'approved',
+      // Configurar moneda correctamente
+      ...(this.isSandbox ? {
+        // Configuraciones específicas para sandbox
+      } : {})
     };
 
     try {
-      // Validar que tenemos el token de acceso
+      // Validar que tenemos el access token
       if (!this.accessToken) {
         throw new Error('Access Token de MercadoLibre no configurado. Verifica la variable MERCADOLIBRE_ACCESS_TOKEN');
       }
 
-      console.log('Creando preferencia con URLs:', {
-        success: `${baseUrl}/pago/exito`,
-        failure: `${baseUrl}/pago/error`,
-        pending: `${baseUrl}/pago/pendiente`,
-        webhook: `${baseUrl}/api/webhooks/mercadolibre`
+      console.log('Creando preferencia con configuración:', {
+        sandbox: this.isSandbox,
+        baseUrl,
+        isProduction,
+        itemsCount: items.length,
+        userEmail,
+        paymentRequest: JSON.stringify(paymentRequest, null, 2)
       });
 
 
@@ -87,6 +95,12 @@ export class MercadoLibreService {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Error de MercadoPago:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          requestBody: JSON.stringify(paymentRequest, null, 2)
+        });
         throw new Error(`Error al crear preferencia de pago: ${errorData.message || response.statusText}`);
       }
 
@@ -97,27 +111,21 @@ export class MercadoLibreService {
   }
 
   /**
-   * Obtiene el estado de un pago
+   * Obtiene el estado de un pago (requiere clave privada - usar en backend)
    */
   async getPaymentStatus(paymentId: string): Promise<MercadoLibrePaymentStatus> {
-    try {
-      const response = await fetch(`${this.baseUrl}/v1/payments/${paymentId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json',
-        }
-      });
+    // Este método requiere la clave privada y debe ejecutarse en el backend
+    // Para el frontend, usar el endpoint de la API interna
+    const response = await fetch(`/api/payments/mercadolibre/status/${paymentId}`, {
+      method: 'GET',
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Error al obtener estado del pago: ${errorData.message || response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Error al obtener estado del pago: ${errorData.message || response.statusText}`);
     }
+
+    return await response.json();
   }
 
   /**
@@ -144,6 +152,18 @@ export class MercadoLibreService {
    * Obtiene la URL de inicialización según el entorno
    */
   getInitPointUrl(response: MercadoLibrePaymentResponse): string {
-    return this.isSandbox ? response.sandbox_init_point : response.init_point;
+    console.log('URLs disponibles:', {
+      sandbox: this.isSandbox,
+      init_point: response.init_point,
+      sandbox_init_point: response.sandbox_init_point
+    });
+    
+    // En sandbox, usar sandbox_init_point
+    if (this.isSandbox && response.sandbox_init_point) {
+      return response.sandbox_init_point;
+    }
+    
+    // En producción, usar init_point
+    return response.init_point;
   }
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoLibreService } from '@/shared/services/MercadoLibreService';
-import { useCartStore } from '@/shared/store/cartStore';
+import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBackendService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,8 +70,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const mercadoLibreService = new MercadoLibreService();
-    const paymentStatus = await mercadoLibreService.getPaymentStatus(paymentId);
+    const mercadoLibreBackendService = new MercadoLibreBackendService();
+    const paymentStatus = await mercadoLibreBackendService.getPaymentStatus(paymentId);
 
     return NextResponse.json({
       success: true,
