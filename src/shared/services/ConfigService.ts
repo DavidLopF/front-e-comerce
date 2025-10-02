@@ -17,7 +17,9 @@ export const configService = {
         const urlParams = new URLSearchParams(window.location.search);
         finalStoreId = urlParams.get('store') || 
                       localStorage.getItem('current-store') ||
-                      'techstore-pro'; // fallback por defecto
+                      //variable de entorno
+                      process.env.NEXT_STORE_NAME 
+                      
       }
       
       // Construir la URL del endpoint

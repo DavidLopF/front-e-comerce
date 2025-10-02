@@ -6,11 +6,14 @@ import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 import Link from "next/link";
 import Image from "next/image";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
+import CheckoutModal from "@/shared/ui/CheckoutModal";
 
 export default function CarritoPage() {
   const { config } = useStoreConfigContext();
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   const totalPrice = getTotalPrice();
 
@@ -34,6 +37,57 @@ export default function CarritoPage() {
       removeItem(productId);
       setRemovingItemId(null);
     }, 300); // Duración de la animación
+  };
+
+  // Manejar proceder al pago
+  const handleProceedToPayment = () => {
+    if (items.length === 0) return;
+    setShowCheckoutModal(true);
+  };
+
+  // Manejar envío del formulario de checkout
+  const handleCheckoutSubmit = async (formData: { nombre: string; email: string; telefono: string; direccion: string }) => {
+    setIsProcessingPayment(true);
+    
+    try {
+      // Crear referencia externa única
+      const externalReference = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Llamar a la API para crear la preferencia de pago
+      const response = await fetch('/api/payments/mercadolibre', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cartItems: items,
+          userEmail: formData.email,
+          externalReference,
+          customerInfo: {
+            name: formData.nombre,
+            phone: formData.telefono,
+            address: formData.direccion
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.initPointUrl) {
+        // Cerrar el modal
+        setShowCheckoutModal(false);
+        // Redirigir a MercadoLibre
+        window.location.href = data.initPointUrl;
+      } else {
+        throw new Error(data.error || 'Error al procesar el pago');
+      }
+
+    } catch (error) {
+      console.error('Error al procesar pago:', error);
+      alert('Hubo un error al procesar el pago. Por favor, intenta nuevamente.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   if (items.length === 0) {
@@ -239,18 +293,31 @@ export default function CarritoPage() {
               </div>
 
               <button 
-                className="w-full text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl mb-3 sm:mb-4"
+                onClick={handleProceedToPayment}
+                disabled={isProcessingPayment}
+                className="w-full text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl mb-3 sm:mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ 
                   backgroundColor: normalizedPrimary,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = primaryHover;
+                  if (!isProcessingPayment) {
+                    e.currentTarget.style.backgroundColor = primaryHover;
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = normalizedPrimary;
+                  if (!isProcessingPayment) {
+                    e.currentTarget.style.backgroundColor = normalizedPrimary;
+                  }
                 }}
               >
-                Proceder al pago
+                {isProcessingPayment ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Procesando...</span>
+                  </div>
+                ) : (
+                  'Proceder al pago'
+                )}
               </button>
 
               <Link 
@@ -303,6 +370,14 @@ export default function CarritoPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Checkout */}
+      <CheckoutModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        onSubmit={handleCheckoutSubmit}
+        isLoading={isProcessingPayment}
+      />
     </div>
   );
 }
