@@ -54,14 +54,9 @@ export class MercadoLibreService {
         pending: `${baseUrl}/pago/pendiente`
       },
       external_reference: externalReference,
-      auto_return: 'approved',
-      // Configuraciones específicas para Colombia
-      payment_methods: {
-        excluded_payment_methods: [],
-        excluded_payment_types: [],
-        installments: 1
-      },
-      binary_mode: false
+      auto_return: 'approved'
+      // Remover payment_methods para permitir todos los métodos de pago
+      // binary_mode: false
     };
     
     // Agregar notification_url para webhooks
