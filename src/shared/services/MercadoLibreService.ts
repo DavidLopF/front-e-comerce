@@ -29,8 +29,9 @@ export class MercadoLibreService {
       unit_price: Math.round(this.calculateFinalPrice(item.product.priceCents, item.product.discount))
     }));
 
-    // Obtener la URL base desde variables de entorno
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://front-e-comerce-seven.vercel.app';
+    // Obtener la URL base desde variables de entorno (sin slash final)
+    let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://front-e-comerce-seven.vercel.app';
+    baseUrl = baseUrl.replace(/\/+$/, ''); // Remover slash final si existe
     
     const paymentRequest: MercadoLibrePaymentRequest = {
       items,
@@ -43,20 +44,27 @@ export class MercadoLibreService {
         address: customerInfo?.address ? {
           street_name: customerInfo.address,
           street_number: 1,
-          zip_code: "00000"
+          zip_code: "110111" // Código postal válido para Colombia
         } : undefined
       },
-      // URLs de retorno - siempre requeridas
+      // URLs de retorno
       back_urls: {
         success: `${baseUrl}/pago/exito`,
         failure: `${baseUrl}/pago/error`,
         pending: `${baseUrl}/pago/pendiente`
       },
       external_reference: externalReference,
-      auto_return: 'approved'
+      auto_return: 'approved',
+      // Configuraciones específicas para Colombia
+      payment_methods: {
+        excluded_payment_methods: [],
+        excluded_payment_types: [],
+        installments: 1
+      },
+      binary_mode: false
     };
     
-    // Solo agregar notification_url si no estamos en localhost
+    // Agregar notification_url para webhooks
     if (!baseUrl.includes('localhost')) {
       paymentRequest.notification_url = `${baseUrl}/api/webhooks/mercadolibre`;
     }
@@ -67,9 +75,10 @@ export class MercadoLibreService {
         throw new Error('Access Token de MercadoLibre no configurado. Verifica la variable MERCADOLIBRE_ACCESS_TOKEN');
       }
 
-      console.log('Creando preferencia con configuración:', {
+      console.log('🔍 DEBUG - Creando preferencia con configuración:', {
         sandbox: this.isSandbox,
         baseUrl,
+        accessToken: this.accessToken ? `${this.accessToken.substring(0, 20)}...` : 'NO_TOKEN',
         itemsCount: items.length,
         userEmail,
         paymentRequest: JSON.stringify(paymentRequest, null, 2)

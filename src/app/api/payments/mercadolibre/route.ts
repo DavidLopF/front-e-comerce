@@ -6,6 +6,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { userEmail, externalReference, customerInfo } = body;
+    
+    console.log('🔍 DEBUG - API Payment Request:', {
+      userEmail,
+      externalReference,
+      customerInfo,
+      cartItemsCount: body.cartItems?.length || 0,
+      baseUrl: process.env.NEXT_PUBLIC_BASE_URL
+    });
 
     if (!userEmail) {
       return NextResponse.json(
@@ -37,6 +45,14 @@ export async function POST(request: NextRequest) {
 
     // Obtener la URL de inicialización
     const initPointUrl = mercadoLibreService.getInitPointUrl(paymentResponse);
+    
+    console.log('🔍 DEBUG - Payment Response:', {
+      paymentId: paymentResponse.id,
+      initPointUrl,
+      sandbox: mercadoLibreService['isSandbox'],
+      initPoint: paymentResponse.init_point,
+      sandboxInitPoint: paymentResponse.sandbox_init_point
+    });
 
     return NextResponse.json({
       success: true,

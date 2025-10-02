@@ -11,6 +11,12 @@ export interface MercadoLibrePaymentRequest {
   auto_return?: 'approved' | 'all';
   notification_url?: string;
   external_reference?: string;
+  payment_methods?: {
+    excluded_payment_methods: Array<{ id: string }>;
+    excluded_payment_types: Array<{ id: string }>;
+    installments?: number;
+  };
+  binary_mode?: boolean;
 }
 
 export interface MercadoLibreItem {

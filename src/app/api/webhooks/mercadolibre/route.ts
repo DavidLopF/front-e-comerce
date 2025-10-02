@@ -3,6 +3,18 @@ import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBacken
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar la clave secreta si está configurada
+    const webhookSecret = process.env.MERCADOLIBRE_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const signature = request.headers.get('x-signature');
+      if (!signature) {
+        console.log('Webhook sin firma - posiblemente no válido');
+        return NextResponse.json({ error: 'Sin firma' }, { status: 401 });
+      }
+      // Nota: Aquí deberías implementar la validación real de la firma
+      // Por ahora solo verificamos que existe
+    }
+
     const body = await request.json();
     const { type, data } = body;
 
