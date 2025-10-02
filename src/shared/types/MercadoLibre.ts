@@ -92,7 +92,7 @@ export interface MercadoLibrePaymentStatus {
     first_name: string;
     last_name: string;
   };
-  metadata: any;
+  metadata: Record<string, unknown>;
   order: {
     id: number;
     type: string;
@@ -141,7 +141,7 @@ export interface MercadoLibrePaymentStatus {
     };
   };
   notification_url?: string;
-  refunds: any[];
+  refunds: unknown[];
   additional_info?: string;
   payment_method_id: string;
   issuer_id?: string;
@@ -149,7 +149,7 @@ export interface MercadoLibrePaymentStatus {
   merchant_account_id?: string;
   merchant_number?: string;
   acquirer?: string;
-  acquirer_reconciliation?: any[];
+  acquirer_reconciliation?: unknown[];
   point_of_interaction?: {
     type: string;
     application_data?: {

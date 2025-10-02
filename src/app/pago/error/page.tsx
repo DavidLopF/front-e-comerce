@@ -1,15 +1,16 @@
 "use client";
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useStoreConfigContext } from '@/shared/providers/StoreConfigProvider';
 
-export default function PagoErrorPage() {
+function PagoErrorContent() {
   const { config } = useStoreConfigContext();
   const searchParams = useSearchParams();
 
   const paymentId = searchParams.get('payment_id');
-  const externalReference = searchParams.get('external_reference');
+  // const externalReference = searchParams.get('external_reference'); // No se usa actualmente
 
   // Colores dinámicos del tema
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
@@ -58,5 +59,20 @@ export default function PagoErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PagoErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 border-blue-600"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <PagoErrorContent />
+    </Suspense>
   );
 }
