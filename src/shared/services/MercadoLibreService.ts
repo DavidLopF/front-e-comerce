@@ -1,4 +1,4 @@
-import { MercadoLibrePaymentRequest, MercadoLibrePaymentResponse, MercadoLibrePaymentStatus } from '../types/MercadoLibre';
+import { MercadoLibrePaymentRequest, MercadoLibrePaymentResponse, MercadoLibrePaymentStatus, MercadoLibrePayer } from '../types/MercadoLibre';
 import { CartItem } from '../types/Cart';
 
 /**
@@ -45,7 +45,7 @@ export class MercadoLibreService {
     baseUrl = baseUrl.replace(/\/+$/, ''); // Remover slash final si existe
     
     // Construir el payer sin campos undefined
-    const payer: any = {
+    const payer: MercadoLibrePayer = {
       email: userEmail
     };
     

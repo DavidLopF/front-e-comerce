@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useCartStore } from "../store/cartStore";
 import { formatPriceCOP } from "../utils/priceFormatter";
 import { useStoreConfigContext } from "../providers/StoreConfigProvider";
@@ -33,14 +33,14 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
   const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
   // Función para reiniciar el timer de auto-cierre
-  const resetAutoClose = () => {
+  const resetAutoClose = useCallback(() => {
     if (autoCloseTimeoutRef.current) {
       clearTimeout(autoCloseTimeoutRef.current);
     }
     autoCloseTimeoutRef.current = setTimeout(() => {
       onClose();
     }, 8000);
-  };
+  }, [onClose]);
 
   // Auto-cierre inteligente
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
         }
       };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, resetAutoClose]);
 
   // Manejar interacciones del usuario para pausar el auto-cierre
   const handleUserInteraction = () => {

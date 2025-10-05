@@ -27,7 +27,7 @@ export interface BackendCreatePreferenceResponse {
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 }
 
@@ -163,7 +163,7 @@ export class PaymentBackendService {
   /**
    * Obtiene el estado de un pago a través del backend
    */
-  async getPaymentStatus(paymentId: string): Promise<any> {
+  async getPaymentStatus(paymentId: string): Promise<unknown> {
     try {
       const response = await fetch(`${this.backendUrl}/payments/status/${paymentId}`, {
         method: 'GET',
