@@ -1,6 +1,17 @@
 import { MercadoLibrePaymentRequest, MercadoLibrePaymentResponse, MercadoLibrePaymentStatus } from '../types/MercadoLibre';
 import { CartItem } from '../types/Cart';
 
+/**
+ * @deprecated Este servicio está deprecado y presenta problemas de seguridad.
+ * Usar PaymentBackendService en su lugar, que delega la lógica al backend NestJS.
+ * 
+ * PROBLEMAS DE SEGURIDAD:
+ * - Expone credenciales de MercadoLibre en el frontend
+ * - Variables de entorno accesibles desde el cliente
+ * - Lógica de negocio sensible ejecutándose en el navegador
+ * 
+ * MIGRACIÓN: Usar PaymentBackendService
+ */
 export class MercadoLibreService {
   private readonly accessToken: string;
   private readonly baseUrl: string;
@@ -66,14 +77,18 @@ export class MercadoLibreService {
         pending: `${baseUrl}/pago/pendiente`
       },
       external_reference: externalReference,
-      auto_return: 'approved'
-      // Remover payment_methods para permitir todos los métodos de pago
-      // binary_mode: false
+      auto_return: 'approved',
+      // Configuración específica para Colombia sandbox
+      payment_methods: {
+        excluded_payment_methods: [],
+        excluded_payment_types: [],
+        installments: 1
+      }
     };
     
     // Agregar notification_url para webhooks
     if (!baseUrl.includes('localhost')) {
-      paymentRequest.notification_url = `${baseUrl}/api/webhooks/mercadolibre`;
+      paymentRequest.notification_url = `${baseUrl}/webhooks/mercadolibre`;
     }
 
     try {
@@ -124,7 +139,7 @@ export class MercadoLibreService {
   async getPaymentStatus(paymentId: string): Promise<MercadoLibrePaymentStatus> {
     // Este método requiere la clave privada y debe ejecutarse en el backend
     // Para el frontend, usar el endpoint de la API interna
-    const response = await fetch(`/api/payments/mercadolibre/status/${paymentId}`, {
+    const response = await fetch(`/payments/mercadolibre/status/${paymentId}`, {
       method: 'GET',
     });
 

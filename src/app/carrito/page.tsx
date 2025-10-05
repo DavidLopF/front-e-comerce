@@ -7,15 +7,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import CheckoutModal from "@/shared/ui/CheckoutModal";
+import { PaymentBackendService } from "@/shared/services/PaymentBackendService";
 
 export default function CarritoPage() {
   const { config } = useStoreConfigContext();
-  const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
+  const { items, updateQuantity, removeItem, clearCart, getTotalPrice, getShippingCost, getTotalWithShipping } = useCartStore();
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
-  const totalPrice = getTotalPrice();
+  const subtotal = getTotalPrice();
+  const shippingCost = getShippingCost();
+  const totalPrice = getTotalWithShipping();
 
   // Colores dinámicos del tema
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
@@ -53,37 +56,49 @@ export default function CarritoPage() {
       // Crear referencia externa única
       const externalReference = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Llamar a la API para crear la preferencia de pago
-      const response = await fetch('/api/payments/mercadolibre', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cartItems: items,
-          userEmail: formData.email,
-          externalReference,
-          customerInfo: {
-            name: formData.nombre,
-            phone: formData.telefono,
-            address: formData.direccion
-          }
-        })
+      // Instanciar el servicio de pagos
+      const paymentService = new PaymentBackendService();
+
+      // Llamar directamente al backend NestJS
+      console.log('🛒 Iniciando proceso de pago...', {
+        itemCount: items.length,
+        totalPrice,
+        externalReference
       });
 
-      const data = await response.json();
+      const paymentResponse = await paymentService.createPaymentPreference(
+        items,
+        formData.email,
+        externalReference,
+        {
+          name: formData.nombre,
+          phone: formData.telefono,
+          address: formData.direccion
+        }
+      );
 
-      if (data.success && data.initPointUrl) {
+      console.log('📦 Respuesta completa del servicio:', paymentResponse);
+
+      if (paymentResponse.success && paymentResponse.data?.initPointUrl) {
+        console.log('✅ Preferencia creada exitosamente:', {
+          preferenceId: paymentResponse.data.preferenceId,
+          initPointUrl: paymentResponse.data.initPointUrl
+        });
+        
         // Cerrar el modal
         setShowCheckoutModal(false);
+        
+        console.log('🔄 Redirigiendo a:', paymentResponse.data.initPointUrl);
+        
         // Redirigir a MercadoLibre
-        window.location.href = data.initPointUrl;
+        window.location.href = paymentResponse.data.initPointUrl;
       } else {
-        throw new Error(data.error || 'Error al procesar el pago');
+        console.error('❌ Respuesta sin éxito:', paymentResponse);
+        throw new Error(paymentResponse.error?.message || 'Error al procesar el pago');
       }
 
     } catch (error) {
-      console.error('Error al procesar pago:', error);
+      console.error('❌ Error al procesar pago:', error);
       alert('Hubo un error al procesar el pago. Por favor, intenta nuevamente.');
     } finally {
       setIsProcessingPayment(false);
@@ -276,18 +291,18 @@ export default function CarritoPage() {
               <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                 <div className="flex justify-between text-sm sm:text-base text-gray-600">
                   <span className="break-words">Subtotal ({items.reduce((total, item) => total + item.quantity, 0)} productos)</span>
-                  <span className="font-semibold flex-shrink-0 ml-2">{formatPriceCOP(totalPrice)}</span>
+                  <span className="font-semibold flex-shrink-0 ml-2">{formatPriceCOP(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm sm:text-base text-gray-600">
                   <span>Envío</span>
-                  <span className="font-semibold text-green-600 flex-shrink-0 ml-2">
-                    {totalPrice >= 5000000 ? "GRATIS" : formatPriceCOP(50000)}
+                  <span className="font-semibold text-blue-600 flex-shrink-0 ml-2">
+                    {formatPriceCOP(shippingCost)}
                   </span>
                 </div>
                 <div className="border-t pt-3 sm:pt-4">
                   <div className="flex justify-between text-base sm:text-lg font-bold text-gray-900">
                     <span>Total</span>
-                    <span className="flex-shrink-0 ml-2">{formatPriceCOP(totalPrice >= 5000000 ? totalPrice : totalPrice + 50000)}</span>
+                    <span className="flex-shrink-0 ml-2">{formatPriceCOP(totalPrice)}</span>
                   </div>
                 </div>
               </div>

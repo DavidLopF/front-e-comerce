@@ -75,6 +75,22 @@ export const useCartStore = create<CartState>()(
         }, 0);
       },
 
+      getShippingCost: () => {
+        const items = get().items;
+        // Si el carrito está vacío, no hay costo de envío
+        if (items.length === 0) {
+          return 0;
+        }
+        // Costo de envío: $3.000 COP
+        return 3000; // Usamos la misma unidad que product.priceCents (pesos)
+      },
+
+      getTotalWithShipping: () => {
+        const subtotal = get().getTotalPrice();
+        const shipping = get().getShippingCost();
+        return subtotal + shipping;
+      },
+
       setOpenCartOnAdd: (open: boolean) => {
         set({ openCartOnAdd: open });
       },

@@ -14,5 +14,7 @@ export interface CartState {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  getShippingCost: () => number;
+  getTotalWithShipping: () => number;
   setOpenCartOnAdd: (open: boolean) => void;
 }

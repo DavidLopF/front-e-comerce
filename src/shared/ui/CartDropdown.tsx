@@ -13,8 +13,10 @@ interface CartDropdownProps {
 
 export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
   const { config } = useStoreConfigContext();
-  const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
-  const totalPrice = getTotalPrice();
+  const { items, removeItem, updateQuantity, getTotalPrice, getShippingCost, getTotalWithShipping } = useCartStore();
+  const subtotal = getTotalPrice();
+  const shippingCost = getShippingCost();
+  const totalPrice = getTotalWithShipping();
   const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
 
@@ -239,38 +241,44 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
         {items.length > 0 && (
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             {/* Información de envío */}
-            {totalPrice < 5000000 && (
-              <div 
-                className="mb-3 p-2 rounded-lg"
-                style={{ backgroundColor: `${normalizedPrimary}10` }}
-              >
-                <p 
-                  className="text-xs font-medium"
-                  style={{ color: normalizedPrimary }}
-                >
-                  ¡Envío gratis en compras superiores a {formatPriceCOP(5000000)}!
-                </p>
                 <div 
-                  className="mt-1 rounded-full h-1"
-                  style={{ backgroundColor: `${normalizedPrimary}30` }}
+                  className="mb-3 p-2 rounded-lg"
+                  style={{ backgroundColor: `${normalizedPrimary}10` }}
                 >
+                  <p 
+                    className="text-xs font-medium"
+                    style={{ color: normalizedPrimary }}
+                  >
+                    ¡Envío gratis en compras superiores a {formatPriceCOP(5000000)}!
+                  </p>
                   <div 
-                    className="h-1 rounded-full transition-all"
-                    style={{ 
-                      backgroundColor: normalizedPrimary,
-                      width: `${Math.min((totalPrice / 5000000) * 100, 100)}%` 
-                    }}
-                  />
+                    className="mt-1 rounded-full h-1"
+                    style={{ backgroundColor: `${normalizedPrimary}30` }}
+                  >
+                    <div 
+                      className="h-1 rounded-full transition-all"
+                      style={{ 
+                        backgroundColor: normalizedPrimary,
+                        width: `${Math.min((subtotal / 5000000) * 100, 100)}%` 
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-900">Total:</span>
-              <span className="text-lg font-bold text-gray-900">
-                {formatPriceCOP(totalPrice >= 5000000 ? totalPrice : totalPrice + 50000)}
-              </span>
-            </div>
+
+                <div className="flex items-center justify-between mb-1 text-sm text-gray-600">
+                  <span>Subtotal</span>
+                  <span className="font-semibold">{formatPriceCOP(subtotal)}</span>
+                </div>
+
+                <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
+                  <span>Envío</span>
+                  <span className="font-semibold text-blue-600">{shippingCost === 0 ? 'GRATIS' : formatPriceCOP(shippingCost)}</span>
+                </div>
+
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-gray-900">Total:</span>
+                  <span className="text-lg font-bold text-gray-900">{formatPriceCOP(totalPrice)}</span>
+                </div>
             
             <div className="space-y-2">
               <Link

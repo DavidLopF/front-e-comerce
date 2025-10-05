@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MercadoLibreService } from '@/shared/services/MercadoLibreService';
-import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBackendService';
+import { PaymentBackendService } from '@/shared/services/PaymentBackendService';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { userEmail, externalReference, customerInfo } = body;
     
-    console.log('🔍 DEBUG - API Payment Request:', {
+    console.log('🔍 DEBUG - API Payment Request (usando backend NestJS):', {
       userEmail,
       externalReference,
       customerInfo,
       cartItemsCount: body.cartItems?.length || 0,
-      baseUrl: process.env.NEXT_PUBLIC_BASE_URL
+      backendUrl: process.env.NEXT_PUBLIC_API_URL
     });
 
     if (!userEmail) {
@@ -23,7 +22,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener los items del carrito desde el store
-    // Nota: En un entorno real, esto debería venir del request o de una sesión
     const cartItems = body.cartItems || [];
 
     if (cartItems.length === 0) {
@@ -33,32 +31,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const mercadoLibreService = new MercadoLibreService();
+    const paymentBackendService = new PaymentBackendService();
     
-    // Crear la preferencia de pago con información del cliente
-    const paymentResponse = await mercadoLibreService.createPaymentPreference(
+    // Crear la preferencia de pago a través del backend seguro
+    const paymentResponse = await paymentBackendService.createPaymentPreference(
       cartItems,
       userEmail,
       externalReference,
       customerInfo
     );
 
-    // Obtener la URL de inicialización
-    const initPointUrl = mercadoLibreService.getInitPointUrl(paymentResponse);
+    // Verificar si la respuesta del backend fue exitosa
+    if (!paymentResponse.success) {
+      return NextResponse.json(
+        { 
+          error: 'Error al crear preferencia de pago',
+          details: paymentResponse.error?.message || 'Error desconocido'
+        },
+        { status: 500 }
+      );
+    }
+
+    // Obtener la URL de inicialización del backend
+    const initPointUrl = paymentBackendService.getInitPointUrl(paymentResponse);
     
-    console.log('🔍 DEBUG - Payment Response:', {
-      paymentId: paymentResponse.id,
+    console.log('🔍 DEBUG - Payment Response (desde backend):', {
+      preferenceId: paymentResponse.data?.preferenceId,
       initPointUrl,
-      sandbox: mercadoLibreService['isSandbox'],
-      initPoint: paymentResponse.init_point,
-      sandboxInitPoint: paymentResponse.sandbox_init_point
+      externalReference: paymentResponse.data?.externalReference,
+      success: paymentResponse.success
     });
 
     return NextResponse.json({
       success: true,
-      paymentId: paymentResponse.id,
+      paymentId: paymentResponse.data?.preferenceId,
       initPointUrl,
-      sandbox: mercadoLibreService['isSandbox']
+      sandbox: process.env.NODE_ENV === 'development' // Determinamos sandbox por el entorno
     });
 
   } catch (error) {
@@ -86,8 +94,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const mercadoLibreBackendService = new MercadoLibreBackendService();
-    const paymentStatus = await mercadoLibreBackendService.getPaymentStatus(paymentId);
+    const paymentBackendService = new PaymentBackendService();
+    const paymentStatus = await paymentBackendService.getPaymentStatus(paymentId);
 
     return NextResponse.json({
       success: true,

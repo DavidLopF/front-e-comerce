@@ -18,7 +18,7 @@ export const configService = {
         finalStoreId = urlParams.get('store') || 
                       localStorage.getItem('current-store') ||
                       //variable de entorno
-                      process.env.NEXT_STORE_NAME 
+                      process.env.NEXT_PUBLIC_STORE_NAME 
                       
       }
       
