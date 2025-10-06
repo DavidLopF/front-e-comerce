@@ -64,9 +64,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const authUser = await AuthService.login(data);
       setUser(authUser);
       console.log('✅ Usuario logueado exitosamente:', authUser.email);
-    } catch (error: any) {
-      console.error('❌ Error en login:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error de autenticación';
+      console.error('❌ Error en login:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -81,9 +82,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const authUser = await AuthService.register(data);
       setUser(authUser);
       console.log('✅ Usuario registrado exitosamente:', authUser.email);
-    } catch (error: any) {
-      console.error('❌ Error en registro:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error de registro';
+      console.error('❌ Error en registro:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -98,9 +100,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const authUser = await AuthService.loginWithGoogle();
       setUser(authUser);
       console.log('✅ Usuario logueado con Google:', authUser.email);
-    } catch (error: any) {
-      console.error('❌ Error en login con Google:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error con login de Google';
+      console.error('❌ Error en login con Google:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -115,9 +118,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const authUser = await AuthService.loginWithFacebook();
       setUser(authUser);
       console.log('✅ Usuario logueado con Facebook:', authUser.email);
-    } catch (error: any) {
-      console.error('❌ Error en login con Facebook:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error con login de Facebook';
+      console.error('❌ Error en login con Facebook:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -132,9 +136,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await AuthService.logout();
       setUser(null);
       console.log('✅ Usuario deslogueado exitosamente');
-    } catch (error: any) {
-      console.error('❌ Error en logout:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al cerrar sesión';
+      console.error('❌ Error en logout:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -147,9 +152,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setAuthError(null);
       await AuthService.resetPassword(email);
       console.log('✅ Email de restablecimiento enviado a:', email);
-    } catch (error: any) {
-      console.error('❌ Error al enviar email de reset:', error.message);
-      setAuthError(error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al enviar email de restablecimiento';
+      console.error('❌ Error al enviar email de reset:', errorMessage);
+      setAuthError(errorMessage);
       throw error;
     }
   };

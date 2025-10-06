@@ -54,9 +54,10 @@ export class AuthService {
         displayName: data.name,
         photoURL: userCredential.user.photoURL
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error en registro:', error);
-      throw new Error(this.getErrorMessage(error.code));
+      const firebaseError = error as { code?: string };
+      throw new Error(this.getErrorMessage(firebaseError.code || 'auth/unknown'));
     }
   }
 
@@ -75,9 +76,10 @@ export class AuthService {
         displayName: userCredential.user.displayName,
         photoURL: userCredential.user.photoURL
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error en login:', error);
-      throw new Error(this.getErrorMessage(error.code));
+      const firebaseError = error as { code?: string };
+      throw new Error(this.getErrorMessage(firebaseError.code || 'auth/unknown'));
     }
   }
 
@@ -96,9 +98,10 @@ export class AuthService {
         displayName: userCredential.user.displayName,
         photoURL: userCredential.user.photoURL
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error en login con Google:', error);
-      throw new Error(this.getErrorMessage(error.code));
+      const firebaseError = error as { code?: string };
+      throw new Error(this.getErrorMessage(firebaseError.code || 'auth/unknown'));
     }
   }
 
@@ -116,9 +119,10 @@ export class AuthService {
         displayName: userCredential.user.displayName,
         photoURL: userCredential.user.photoURL
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error en login con Facebook:', error);
-      throw new Error(this.getErrorMessage(error.code));
+      const firebaseError = error as { code?: string };
+      throw new Error(this.getErrorMessage(firebaseError.code || 'auth/unknown'));
     }
   }
 
@@ -126,7 +130,7 @@ export class AuthService {
   static async logout(): Promise<void> {
     try {
       await signOut(auth);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error en logout:', error);
       throw new Error('Error al cerrar sesión');
     }
@@ -136,9 +140,10 @@ export class AuthService {
   static async resetPassword(email: string): Promise<void> {
     try {
       await sendPasswordResetEmail(auth, email);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al enviar email de reset:', error);
-      throw new Error(this.getErrorMessage(error.code));
+      const firebaseError = error as { code?: string };
+      throw new Error(this.getErrorMessage(firebaseError.code || 'auth/unknown'));
     }
   }
 
