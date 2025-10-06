@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
+import { useAuth } from "@/shared/providers/AuthProvider";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -11,8 +12,8 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
   const { config } = useStoreConfigContext();
+  const { login, register, loginWithGoogle, loginWithFacebook, authError, clearAuthError, loading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Form state for login
   const [loginEmail, setLoginEmail] = useState("");
@@ -35,22 +36,33 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
 
   const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
-  // Handle login submit (mock)
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulate successful authentication
-      onAuthSuccess();
-    }, 1500);
+  // Limpiar errores cuando se cambia de tab
+  const handleTabChange = (isLoginTab: boolean) => {
+    setIsLogin(isLoginTab);
+    clearAuthError();
   };
 
-  // Handle register submit (mock)
+  // Handle login submit
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearAuthError();
+
+    try {
+      await login({
+        email: loginEmail,
+        password: loginPassword
+      });
+      onAuthSuccess();
+    } catch (error) {
+      // El error ya se maneja en el contexto
+      console.error('Error en login:', error);
+    }
+  };
+
+  // Handle register submit
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearAuthError();
 
     // Basic validation
     if (registerPassword !== registerConfirmPassword) {
@@ -58,14 +70,39 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
       return;
     }
 
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulate successful registration
+    try {
+      await register({
+        name: registerName,
+        email: registerEmail,
+        password: registerPassword
+      });
       onAuthSuccess();
-    }, 1500);
+    } catch (error) {
+      // El error ya se maneja en el contexto
+      console.error('Error en registro:', error);
+    }
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = async () => {
+    clearAuthError();
+    try {
+      await loginWithGoogle();
+      onAuthSuccess();
+    } catch (error) {
+      console.error('Error en login con Google:', error);
+    }
+  };
+
+  // Handle Facebook login
+  const handleFacebookLogin = async () => {
+    clearAuthError();
+    try {
+      await loginWithFacebook();
+      onAuthSuccess();
+    } catch (error) {
+      console.error('Error en login con Facebook:', error);
+    }
   };
 
   if (!isOpen) return null;
@@ -99,7 +136,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
           {/* Toggle between Login and Register */}
           <div className="flex mb-6 border-b">
             <button
-              onClick={() => setIsLogin(true)}
+              onClick={() => handleTabChange(true)}
               className={`flex-1 py-3 text-center font-semibold transition-colors ${
                 isLogin ? "border-b-2 text-gray-900" : "text-gray-500"
               }`}
@@ -108,7 +145,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
               Iniciar Sesión
             </button>
             <button
-              onClick={() => setIsLogin(false)}
+              onClick={() => handleTabChange(false)}
               className={`flex-1 py-3 text-center font-semibold transition-colors ${
                 !isLogin ? "border-b-2 text-gray-900" : "text-gray-500"
               }`}
@@ -117,6 +154,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
               Registrarse
             </button>
           </div>
+
+          {/* Error Message */}
+          {authError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{authError}</p>
+            </div>
+          )}
 
           {/* Login Form */}
           {isLogin && (
@@ -193,21 +237,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: normalizedPrimary }}
                 onMouseEnter={(e) => {
-                  if (!isLoading) {
+                  if (!loading) {
                     e.currentTarget.style.backgroundColor = primaryHover;
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isLoading) {
+                  if (!loading) {
                     e.currentTarget.style.backgroundColor = normalizedPrimary;
                   }
                 }}
               >
-                {isLoading ? (
+                {loading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                     <span>Iniciando sesión...</span>
@@ -355,21 +399,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: normalizedPrimary }}
                 onMouseEnter={(e) => {
-                  if (!isLoading) {
+                  if (!loading) {
                     e.currentTarget.style.backgroundColor = primaryHover;
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isLoading) {
+                  if (!loading) {
                     e.currentTarget.style.backgroundColor = normalizedPrimary;
                   }
                 }}
               >
-                {isLoading ? (
+                {loading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                     <span>Creando cuenta...</span>
@@ -395,7 +439,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -420,7 +466,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
 
               <button
                 type="button"
-                className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={handleFacebookLogin}
+                disabled={loading}
+                className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />

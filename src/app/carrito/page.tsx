@@ -9,15 +9,16 @@ import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import CheckoutModal from "@/shared/ui/CheckoutModal";
 import AuthModal from "@/shared/ui/AuthModal";
 import { PaymentBackendService } from "@/shared/services/PaymentBackendService";
+import { useAuth } from "@/shared/providers/AuthProvider";
 
 export default function CarritoPage() {
   const { config } = useStoreConfigContext();
+  const { user, isAuthenticated } = useAuth();
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice, getShippingCost, getTotalWithShipping } = useCartStore();
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const subtotal = getTotalPrice();
   const shippingCost = getShippingCost();
@@ -61,7 +62,6 @@ export default function CarritoPage() {
 
   // Manejar autenticación exitosa
   const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
     setShowAuthModal(false);
     // Mostrar el modal de checkout después de autenticarse
     setShowCheckoutModal(true);
