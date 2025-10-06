@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import CheckoutModal from "@/shared/ui/CheckoutModal";
+import AuthModal from "@/shared/ui/AuthModal";
 import { PaymentBackendService } from "@/shared/services/PaymentBackendService";
 
 export default function CarritoPage() {
@@ -14,7 +15,9 @@ export default function CarritoPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice, getShippingCost, getTotalWithShipping } = useCartStore();
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const subtotal = getTotalPrice();
   const shippingCost = getShippingCost();
@@ -45,6 +48,22 @@ export default function CarritoPage() {
   // Manejar proceder al pago
   const handleProceedToPayment = () => {
     if (items.length === 0) return;
+    
+    // Si no está autenticado, mostrar modal de autenticación
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    
+    // Si ya está autenticado, mostrar modal de checkout
+    setShowCheckoutModal(true);
+  };
+
+  // Manejar autenticación exitosa
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setShowAuthModal(false);
+    // Mostrar el modal de checkout después de autenticarse
     setShowCheckoutModal(true);
   };
 
@@ -385,6 +404,13 @@ export default function CarritoPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Autenticación */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
 
       {/* Modal de Checkout */}
       <CheckoutModal

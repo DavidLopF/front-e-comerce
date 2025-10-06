@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useStoreConfigContext } from '@/shared/providers/StoreConfigProvider';
+import { productService } from '../services/ProductSevice';
+import { useCartStore } from '@/shared/store/cartStore';
+import { formatPriceCOP } from '@/shared/utils/priceFormatter';
+import { Product } from '../types/Product';
 
 export default function HeroSection() {
   const { config, loading } = useStoreConfigContext();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [scrollY, setScrollY] = useState(0);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const { addItem } = useCartStore();
 
   // Obtener slides de la configuración
   const slides = config?.hero?.slides || [];
@@ -34,8 +41,18 @@ export default function HeroSection() {
   const normalizedSecondary = normalizeColor(secondaryColor, '#8b5cf6');
   const normalizedAccent = normalizeColor(accentColor, '#f59e0b');
 
-  // Filtrar slides activos
-  const activeSlides = slides.filter(slide => slide.isActive);
+  // Filtrar slides activos (si no tienen isActive, asumirlos como activos)
+  const activeSlides = slides.filter(slide => slide.isActive !== false);
+
+  // Debug logging
+  console.log('🎭 HeroSection Debug:', {
+    loading,
+    isHeroEnabled,
+    slidesCount: slides.length,
+    activeSlidesCount: activeSlides.length,
+    config: config?.hero,
+    slides: slides.map(s => ({ id: s.id, title: s.title, isActive: s.isActive }))
+  });
 
   useEffect(() => {
     // Efecto parallax con scroll
@@ -56,6 +73,25 @@ export default function HeroSection() {
 
     return () => clearInterval(timer);
   }, [activeSlides, autoplay, autoplayInterval]);
+
+  // Cargar productos destacados
+  useEffect(() => {
+    const loadFeaturedProducts = async () => {
+      try {
+        setProductsLoading(true);
+        console.log('🎭 HeroSection: Cargando productos destacados...');
+        const products = await productService.getFeatured(3);
+        setFeaturedProducts(products);
+        console.log('✅ HeroSection: Productos destacados cargados:', products);
+      } catch (error) {
+        console.error('❌ HeroSection: Error cargando productos destacados:', error);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    loadFeaturedProducts();
+  }, []);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -82,6 +118,7 @@ export default function HeroSection() {
 
   // Si está cargando o el hero está deshabilitado
   if (loading) {
+    console.log('⏳ HeroSection: Mostrando pantalla de carga');
     return (
       <section className="relative h-[500px] overflow-hidden rounded-2xl mb-8 bg-gray-200 animate-pulse">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -95,8 +132,15 @@ export default function HeroSection() {
   }
 
   if (!isHeroEnabled || activeSlides.length === 0) {
+    console.log('❌ HeroSection: No se renderiza porque:', {
+      isHeroEnabled,
+      activeSlidesLength: activeSlides.length,
+      slides: slides.map(s => ({ id: s.id, isActive: s.isActive }))
+    });
     return null; // No mostrar nada si está deshabilitado
   }
+
+  console.log('✅ HeroSection: Renderizando hero con', activeSlides.length, 'slides');
 
   return (
     <section className="relative h-screen w-full overflow-hidden mb-8">
@@ -243,19 +287,67 @@ export default function HeroSection() {
                       )}
                     </div>
                     
-                    {/* Imagen destacada - Solo en desktop */}
+                    {/* Productos Destacados - Solo en desktop */}
                     <div className="hidden lg:block">
                       <div className="relative">
-                        <div className="w-full h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl backdrop-blur-sm border border-white/20 p-8">
-                          <div className="w-full h-full bg-white/10 rounded-2xl flex items-center justify-center">
-                            <div className="text-center text-white">
-                              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <h3 className="text-2xl font-bold mb-2">Calidad Premium</h3>
-                              <p className="text-blue-200">Productos seleccionados</p>
+                        <div className="w-full h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl backdrop-blur-sm border border-white/20 p-6">
+                          <div className="w-full h-full bg-white/10 rounded-2xl p-4">
+                            <div className="text-center text-white mb-4">
+                              <h3 className="text-xl font-bold mb-2">🔥 Productos Destacados</h3>
+                              <p className="text-blue-200 text-sm">Los más vendidos</p>
+                            </div>
+                            
+                            <div className="space-y-3 max-h-64 overflow-y-auto">
+                              {productsLoading ? (
+                                <div className="flex justify-center items-center h-32">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                                </div>
+                              ) : (
+                                featuredProducts.map((product, idx) => (
+                                  <div 
+                                    key={product.id} 
+                                    className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/20 transition-all duration-300"
+                                  >
+                                    <div className="flex items-center space-x-3">
+                                      <img 
+                                        src={product.imageUrl || '/placeholder-product.jpg'} 
+                                        alt={product.name}
+                                        className="w-12 h-12 object-cover rounded-lg"
+                                      />
+                                      <div className="flex-1 min-w-0">
+                                        <h4 className="text-white text-sm font-semibold truncate">
+                                          {product.name}
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-green-300 text-lg font-bold">
+                                            {product.discount && product.discount > 0
+                                              ? formatPriceCOP(product.priceCents * (100 - product.discount) / 100)
+                                              : formatPriceCOP(product.priceCents)
+                                            }
+                                          </p>
+                                          {product.discount && product.discount > 0 && (
+                                            <span className="text-xs text-red-300 bg-red-500/30 px-2 py-0.5 rounded-full">
+                                              -{product.discount}%
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          addItem(product, 1);
+                                        }}
+                                        className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300 hover:scale-105"
+                                        title="Agregar al carrito"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.293 1.293a1 1 0 01-1.414 0L3 13m4 0v6a2 2 0 002 2h6a2 2 0 002-2v-6m-4 2v4m-2-2h4" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
                             </div>
                           </div>
                         </div>

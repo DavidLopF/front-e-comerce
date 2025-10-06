@@ -45,7 +45,8 @@ export function useProductFilters(products: Product[]) {
 
     // Filtro por rango de precios
     filtered = filtered.filter(product => {
-      const priceInPesos = product.priceCents / 100;
+      // priceCents ya está en pesos, no necesita dividirse
+      const priceInPesos = product.priceCents;
       return priceInPesos >= filters.priceRange[0] && priceInPesos <= filters.priceRange[1];
     });
 

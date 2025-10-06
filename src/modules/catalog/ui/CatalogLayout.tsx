@@ -27,13 +27,13 @@ export default function CatalogLayout() {
     // Cargar productos
     const loadProducts = async () => {
       try {
-        console.log('🔄 Cargando productos...');
+        console.log('🛍️ CatalogLayout: Cargando productos...');
         const productsData = await productService.list();
-        console.log('✅ Productos cargados:', productsData);
+        console.log('✅ CatalogLayout: Productos cargados:', productsData);
         setProducts(productsData);
-        setIsLoading(false);
       } catch (error) {
-        console.error('❌ Error al cargar productos:', error);
+        console.error('❌ CatalogLayout: Error al cargar productos:', error);
+      } finally {
         setIsLoading(false);
       }
     };

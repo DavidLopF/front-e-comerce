@@ -25,7 +25,9 @@ export const configService = {
       // Construir la URL del endpoint
       const endpoint = finalStoreId ? `/common/store-config?store=${finalStoreId}` : '/common/store-config';
       
+      console.log('🔧 ConfigService: Llamando a endpoint:', endpoint);
       const response = await api.get<StoreConfigResponse>(endpoint);
+      console.log('✅ ConfigService: Respuesta recibida:', response);
       
       // Guardar en localStorage para caché
       if (typeof window !== 'undefined' && response.data) {
