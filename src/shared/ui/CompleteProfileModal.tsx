@@ -86,15 +86,23 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Pr
 
           <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
             <div className="relative w-12 h-12">
-              <img
-                src={user.photoURL || "/default-avatar.png"}
-                alt={user.displayName || "avatar"}
-                className="w-12 h-12 rounded-full object-cover"
-                onError={(e) => {
-                  // Si la imagen falla al cargar, mostrar la imagen por defecto
-                  (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
-                }}
-              />
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || "avatar"}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    // Si la imagen falla al cargar, ocultarla y mostrar las iniciales
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`absolute inset-0 w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold ${user.photoURL ? 'hidden' : 'flex'}`}
+                style={{ display: user.photoURL ? 'none' : 'flex' }}
+              >
+                {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
+              </div>
             </div>
             <div>
               <p className="font-medium text-black">{user.displayName || 'Usuario'}</p>

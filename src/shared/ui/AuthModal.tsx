@@ -100,12 +100,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiUrl}/users/validate-profile-complete?email=${encodeURIComponent(userEmail)}`);
-        if (response.status === 404) {
-          // Usuario no existe en el backend, necesita completar perfil
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Verificación de perfil completo, respuesta:', data);
+          
+          // Si el perfil está completo, no necesita completar perfil
+          if (data.isComplete === true) {
+            return false;
+          }
+          // Si isComplete es false, necesita completar perfil
           return true;
         }
-        // Usuario ya existe, no necesita completar perfil
-        return false;
+        
+        // Si el status es 404 u otro error, necesita completar perfil
+        return true;
       } catch (error) {
         console.error('Error verificando usuario:', error);
         // En caso de error, asumimos que necesita completar perfil
