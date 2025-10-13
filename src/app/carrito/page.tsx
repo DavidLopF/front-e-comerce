@@ -1,4 +1,5 @@
 "use client";
+import { AiFillShopping } from "react-icons/ai";
 
 import { useState } from "react";
 import { useCartStore } from "@/shared/store/cartStore";
@@ -19,6 +20,7 @@ export default function CarritoPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  // Move this import to the top of the file
 
   const subtotal = getTotalPrice();
   const shippingCost = getShippingCost();
@@ -128,9 +130,7 @@ export default function CarritoPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md px-6">
-          <svg className="w-32 h-32 mx-auto text-gray-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-          </svg>
+          <AiFillShopping className="mx-auto mb-4 text-gray-400" size={150} />
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Tu carrito está vacío</h1>
           <p className="text-gray-600 mb-8">¡Agrega algunos productos para comenzar!</p>
           <Link 

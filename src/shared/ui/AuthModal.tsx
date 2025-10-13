@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import { useAuth } from "@/shared/providers/AuthProvider";
+import { AuthService } from "@/shared/services/AuthService";
+import CompleteProfileModal from "./CompleteProfileModal";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,6 +26,15 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
+
+  // Estado para controlar el modal de completar perfil
+  const [showCompleteProfile, setShowCompleteProfile] = useState(false);
+
+  // Función para completar el perfil y cerrar todos los modales
+  const handleCompleteProfile = () => {
+    setShowCompleteProfile(false);
+    onAuthSuccess();
+  };
 
   // Colores dinámicos del tema
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
@@ -76,19 +87,52 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
         email: registerEmail,
         password: registerPassword
       });
-      onAuthSuccess();
+      // Después del registro exitoso, mostrar modal de completar perfil
+      setShowCompleteProfile(true);
     } catch (error) {
       // El error ya se maneja en el contexto
       console.error('Error en registro:', error);
     }
   };
 
+  // Verificar si el usuario necesita completar su perfil
+    const checkIfNeedsProfileCompletion = async (userEmail: string) => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${apiUrl}/users/validate-profile-complete?email=${encodeURIComponent(userEmail)}`);
+        if (response.status === 404) {
+          // Usuario no existe en el backend, necesita completar perfil
+          return true;
+        }
+        // Usuario ya existe, no necesita completar perfil
+        return false;
+      } catch (error) {
+        console.error('Error verificando usuario:', error);
+        // En caso de error, asumimos que necesita completar perfil
+        return true;
+      }
+    };
+
   // Handle Google login
   const handleGoogleLogin = async () => {
     clearAuthError();
     try {
       await loginWithGoogle();
-      onAuthSuccess();
+      // El usuario se actualiza automáticamente por el AuthProvider
+      // Necesitamos esperar un poco para que se actualice el estado
+      setTimeout(async () => {
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser?.email) {
+          const needsCompletion = await checkIfNeedsProfileCompletion(currentUser.email);
+          if (needsCompletion) {
+            setShowCompleteProfile(true);
+          } else {
+            onAuthSuccess();
+          }
+        } else {
+          onAuthSuccess();
+        }
+      }, 100);
     } catch (error) {
       console.error('Error en login con Google:', error);
     }
@@ -99,7 +143,20 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
     clearAuthError();
     try {
       await loginWithFacebook();
-      onAuthSuccess();
+      // Similar al login con Google
+      setTimeout(async () => {
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser?.email) {
+          const needsCompletion = await checkIfNeedsProfileCompletion(currentUser.email);
+          if (needsCompletion) {
+            setShowCompleteProfile(true);
+          } else {
+            onAuthSuccess();
+          }
+        } else {
+          onAuthSuccess();
+        }
+      }, 100);
     } catch (error) {
       console.error('Error en login con Facebook:', error);
     }
@@ -441,7 +498,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    
+                className="flex items-center w-100 justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -464,7 +522,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
                 <span className="ml-2 text-sm font-medium text-gray-700">Google</span>
               </button>
 
-              <button
+              {/* <button
                 type="button"
                 onClick={handleFacebookLogin}
                 disabled={loading}
@@ -474,7 +532,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 <span className="ml-2 text-sm font-medium text-gray-700">Facebook</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -499,6 +557,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
           </p>
         </div>
       </div>
+
+      {/* Modal de completar perfil - se muestra después del registro */}
+      <CompleteProfileModal
+        isOpen={showCompleteProfile}
+        onClose={() => setShowCompleteProfile(false)}
+        onComplete={handleCompleteProfile}
+      />
     </div>
   );
 }

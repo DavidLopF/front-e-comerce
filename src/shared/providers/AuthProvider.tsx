@@ -17,6 +17,7 @@ interface AuthContextType {
   loginWithFacebook: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updateProfile: (data: { displayName?: string | null; photoURL?: string | null }) => Promise<void>;
 
   // Estados de UI
   authError: string | null;
@@ -160,6 +161,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Método para actualizar datos del perfil
+  const updateProfile = async (data: { displayName?: string | null; photoURL?: string | null }) => {
+    try {
+      setAuthError(null);
+      setLoading(true);
+      const updated = await AuthService.updateProfileData(data);
+      setUser(updated);
+      console.log('✅ Perfil actualizado');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el perfil';
+      console.error('❌ Error en actualización de perfil:', errorMessage);
+      setAuthError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     // Estado del usuario
     user,
@@ -173,6 +192,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loginWithFacebook,
     logout,
     resetPassword,
+  updateProfile,
 
     // Estados de UI
     authError,

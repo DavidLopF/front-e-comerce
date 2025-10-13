@@ -61,6 +61,34 @@ export class AuthService {
     }
   }
 
+  // Actualizar datos básicos del perfil (nombre y foto)
+  static async updateProfileData(payload: { displayName?: string | null; photoURL?: string | null }): Promise<AuthUser> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No hay un usuario autenticado');
+      }
+
+      await updateProfile(user, {
+        displayName: payload.displayName ?? user.displayName ?? null,
+        photoURL: payload.photoURL ?? user.photoURL ?? null,
+      });
+
+      // Firebase no refresca automáticamente la instancia en algunos casos
+      const refreshed = auth.currentUser as User; // después de updateProfile sigue siendo el mismo objeto
+
+      return this.formatUser(refreshed);
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      const firebaseError = error as { code?: string; message?: string };
+      // Reutilizamos el mapeo si viene con código, sino mostramos mensaje genérico
+      if (firebaseError.code) {
+        throw new Error(this.getErrorMessage(firebaseError.code));
+      }
+      throw new Error(firebaseError.message || 'No se pudo actualizar el perfil.');
+    }
+  }
+
   // Iniciar sesión con email y contraseña
   static async login(data: LoginData): Promise<AuthUser> {
     try {

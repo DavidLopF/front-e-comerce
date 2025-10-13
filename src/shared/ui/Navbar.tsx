@@ -6,12 +6,19 @@ import React, { useState } from "react";
 import { useCartStore } from "../store/cartStore";
 import CartDropdown from "./CartDropdown";
 import { useStoreConfigContext } from "../providers/StoreConfigProvider";
+import { useAuth } from "@/shared/providers/AuthProvider";
+import AuthModal from "@/shared/ui/AuthModal";
+import UserSettingsModal from "@/shared/ui/UserSettingsModal";
+import { AiOutlineSetting } from "react-icons/ai";
 
 export default function Navbar() {
   const { config, loading } = useStoreConfigContext();
   const totalItems = useCartStore((state) => state.getTotalItems());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
 
   // Colores dinámicos del tema
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
@@ -119,8 +126,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Carrito - Desktop */}
-          <div className="hidden md:block relative">
+          {/* Acciones de usuario + Carrito - Desktop */}
+          <div className="hidden md:flex items-center space-x-3 relative">
             <button 
               onClick={toggleCart}
               className="relative text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 shadow-md"
@@ -145,6 +152,25 @@ export default function Navbar() {
               )}
             </button>
             <CartDropdown isOpen={isCartOpen} onClose={closeCart} />
+
+            {/* Login / Settings */}
+            {!isAuthenticated ? (
+              <button
+                onClick={() => setIsAuthOpen(true)}
+                className="px-3 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
+              >
+                Iniciar sesión
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+                title={user?.displayName || user?.email || 'Cuenta'}
+              >
+                {/* Icono de configuración */}
+                <AiOutlineSetting className="w-6 h-6 text-gray-700" />
+              </button>
+            )}
           </div>
 
           {/* Carrito - Mobile (solo ícono) */}
@@ -172,6 +198,30 @@ export default function Navbar() {
               )}
             </button>
             <CartDropdown isOpen={isCartOpen} onClose={closeCart} />
+
+            {/* Auth on mobile */}
+            {!isAuthenticated ? (
+              <button
+                onClick={() => setIsAuthOpen(true)}
+                className="p-2 rounded-lg border"
+                aria-label="Iniciar sesión"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H3m0 0l4-4m-4 4l4 4m6-10h2a2 2 0 012 2v12a2 2 0 01-2 2h-2" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-lg border"
+                aria-label="Ajustes de cuenta"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.572c-1.756-.426-1.756-2.924 0-3.35.51-.124.94-.49 1.066-1.066.94-1.543 3.31-.826 2.37 2.37a1.724 1.724 0 002.573-1.066z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            )}
 
             {/* Botón hamburguesa */}
             <button
@@ -219,6 +269,9 @@ export default function Navbar() {
           </div>
         )}
       </div>
+      {/* Modales de autenticación y ajustes */}
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} onAuthSuccess={() => setIsAuthOpen(false)} />
+      <UserSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </nav>
   );
 }
