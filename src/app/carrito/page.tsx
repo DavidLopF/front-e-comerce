@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useCartStore } from "@/shared/store/cartStore";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 import Link from "next/link";
-import Image from "next/image";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import CheckoutModal from "@/shared/ui/CheckoutModal";
 import AuthModal from "@/shared/ui/AuthModal";
@@ -21,7 +20,15 @@ export default function CarritoPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [checkoutData, setCheckoutData] = useState<any>(null);
+  // Tipo explícito para los datos del formulario de checkout
+  interface CheckoutFormData {
+    nombre: string;
+    email: string;
+    telefono: string;
+    direccion: string;
+  }
+
+  const [checkoutData, setCheckoutData] = useState<CheckoutFormData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
@@ -469,7 +476,7 @@ export default function CarritoPage() {
         onClose={() => setShowCheckoutModal(false)}
         onSubmit={handleCheckoutSubmit}
         isLoading={isProcessingPayment}
-        initialData={checkoutData}
+        initialData={checkoutData ?? undefined}
       />
 
       {/* Modal de Error */}
