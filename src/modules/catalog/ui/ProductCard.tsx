@@ -35,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/api/users/${user.uid}`);
+      const response = await fetch(`${apiUrl}/users/${user.uid}`);
 
       if (!response.ok) {
         throw new Error("Error al obtener datos del usuario");
