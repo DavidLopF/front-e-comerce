@@ -1,4 +1,5 @@
 import { CartItem } from '../types/Cart';
+import { AuthService } from './AuthService';
 
 // Interfaces para el nuevo backend
 export interface BackendCreatePreferenceRequest {
@@ -91,22 +92,13 @@ export class PaymentBackendService {
       };
 
       const fullUrl = `${this.backendUrl}/payments/create-preferences`;
-      console.log('🔍 Enviando solicitud al backend:', {
-        backendUrl: this.backendUrl,
-        fullUrl,
-        itemsCount: backendItems.length,
-        userEmail,
-        externalReference,
-        hasCustomerInfo: !!customerInfo,
-        requestBody: JSON.stringify(requestBody, null, 2)
-      });
+      const token = await AuthService.getCurrentUserToken();
 
       const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Aquí puedes agregar headers de autenticación si es necesario
-          // 'Authorization': `Bearer ${userToken}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestBody)
       });

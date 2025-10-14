@@ -34,7 +34,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Pr
       const payload = {
         email: user.email,
         name: user.displayName || user.email?.split('@')[0] || 'Usuario',
-        deliveryAddress,
+        address: deliveryAddress,
         phone,
         firebaseUid: user.uid,
         storeId: process.env.NEXT_STORE_NAME || 'techstore-pro'

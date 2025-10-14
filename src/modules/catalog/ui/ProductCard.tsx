@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -7,9 +6,12 @@ import { Product } from "../types/Product";
 import { formatPriceCOP } from "@/shared/utils/priceFormatter";
 import { useCartStore } from "@/shared/store/cartStore";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
+import { AiOutlineShoppingCart } from "react-icons/ai";
+import { useAuth } from "@/shared/providers/AuthProvider";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { config } = useStoreConfigContext();
+  const { user } = useAuth();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -25,13 +27,38 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const normalizedPrimary = normalizeColor(primaryColor, '#3b82f6');
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const createPreference = async () => {
+    if (!user?.uid) {
+      console.warn("Usuario no logueado, no se puede crear preferencia.");
+      return;
+    }
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/api/users/${user.uid}`);
+
+      if (!response.ok) {
+        throw new Error("Error al obtener datos del usuario");
+      }
+
+      const userData = await response.json();
+      console.log("Datos del usuario para preferencia:", userData);
+
+      // Aquí puedes usar userData para crear la preferencia
+      // Ejemplo: enviar datos a otro endpoint
+    } catch (error) {
+      console.error("Error creando preferencia:", error);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Evitar que se ejecute el link
     e.stopPropagation(); // Evitar que se propague al contenedor
-    
+
+    await createPreference();
     addItem(product, 1);
     setShowSuccessMessage(true);
-    
+
     // Ocultar el mensaje después de 2 segundos
     setTimeout(() => {
       setShowSuccessMessage(false);
@@ -139,9 +166,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 }
               }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-              </svg>
+              <AiOutlineShoppingCart className="w-5 h-5" />
               <span>{product.active ? "Agregar al carrito" : "No disponible"}</span>
             </button>
           </div>

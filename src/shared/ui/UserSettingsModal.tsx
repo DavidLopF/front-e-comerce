@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import { useAuth } from "@/shared/providers/AuthProvider";
 
@@ -9,23 +9,99 @@ interface Props {
   onClose: () => void;
 }
 
+interface UserData {
+  name: string;
+  photoURL: string;
+  phone: string;
+  deliveryAddress: string;
+}
+
 export default function UserSettingsModal({ isOpen, onClose }: Props) {
   const { config } = useStoreConfigContext();
   const { user, updateProfile, logout, loading } = useAuth();
 
   const [displayName, setDisplayName] = useState<string>(user?.displayName || "");
   const [photoURL, setPhotoURL] = useState<string>(user?.photoURL || "");
+  const [phone, setPhone] = useState<string>("");
+  const [deliveryAddress, setDeliveryAddress] = useState<string>("");
+  const [userLoading, setUserLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
   const primaryHover = config?.theme?.colors?.primaryHover || primaryColor;
   const normalizedPrimary = primaryColor.startsWith('#') ? primaryColor : `#${primaryColor}`;
 
+  // Cargar datos del usuario desde el backend cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      loadUserData();
+    }
+  }, [isOpen]);
+
+  const loadUserData = async () => {
+    if (!user?.email) {
+      console.warn('Usuario no tiene email, no se pueden cargar datos.');
+      return;
+    }
+
+    setUserLoading(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/users?email=${encodeURIComponent(user.email)}`);
+
+      if (response.ok) {
+        const userData = await response.json();
+        setDisplayName(userData.name || user.displayName || '');
+        setPhotoURL(userData.photoURL || user.photoURL || '');
+        setPhone(userData.phone || '');
+        setDeliveryAddress(userData.deliveryAddress || '');
+      } else {
+        console.error('Error al cargar datos del usuario:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error cargando datos del usuario:', error);
+    } finally {
+      setUserLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateProfile({ displayName, photoURL });
-    onClose();
+    setError(null);
+    
+    try {
+      // Actualizar perfil de Firebase (nombre y foto)
+      await updateProfile({ displayName, photoURL });
+      
+      // Actualizar datos adicionales en el backend
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/users`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user?.email,
+          name: displayName,
+          phone,
+          address: deliveryAddress,
+          firebaseUid: user?.uid,
+          storeId: process.env.NEXT_STORE_NAME || 'techstore-pro'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar los datos');
+      }
+
+      console.log('✅ Datos actualizados exitosamente');
+      onClose();
+    } catch (error) {
+      console.error('❌ Error al guardar:', error);
+      setError(error instanceof Error ? error.message : 'Error inesperado');
+    }
   };
 
   const handleLogout = async () => {
@@ -45,36 +121,71 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
           </button>
         </div>
 
-        <form onSubmit={handleSave} className="p-6 space-y-4">
+        <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
           <div className="flex items-center space-x-4">
-            <img
-              src={photoURL || "/vercel.svg"}
-              alt={displayName || user?.email || "avatar"}
-              className="w-14 h-14 rounded-full object-cover border text-gray-800"
-            />
+            <div className="relative w-14 h-14">
+              {photoURL ? (
+                <img
+                  src={photoURL}
+                  alt={displayName || user?.email || "avatar"}
+                  className="w-14 h-14 rounded-full object-cover border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`absolute inset-0 w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold ${photoURL ? 'hidden' : 'flex'}`}
+                style={{ display: photoURL ? 'none' : 'flex' }}
+              >
+                {(displayName || user?.email || 'U').charAt(0).toUpperCase()}
+              </div>
+            </div>
             <div>
-              <p className="font-semibold text-gray-800">{user?.email}</p>
-              <p className="text-sm text-gray-800">ID: {user?.uid}</p>
+              <p className="font-semibold text-black">{user?.email}</p>
+              <p className="text-sm text-gray-600">ID: {user?.uid}</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-2">Nombre para mostrar</label>
+            <label className="block text-sm font-medium text-black mb-2">Nombre para mostrar</label>
             <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Tu nombre"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-2 outline-none text-gray-800 "
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-2 outline-none text-black"
+            />
+          </div>
+
+      
+
+          <div>
+            <label className="block text-sm font-medium text-black mb-2">Teléfono</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+57 300 123 4567"
+              disabled={userLoading}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-2 outline-none text-black disabled:bg-gray-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">URL de foto (opcional)</label>
-            <input
-              value={photoURL}
-              onChange={(e) => setPhotoURL(e.target.value)}
-              placeholder="https://..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-2 outline-none"
+            <label className="block text-sm font-medium text-black mb-2">Dirección de entrega</label>
+            <textarea
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              placeholder="Calle 123 #45-67, Bogotá, Colombia"
+              rows={3}
+              disabled={userLoading}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-2 outline-none resize-none text-black disabled:bg-gray-100"
             />
           </div>
 
@@ -90,13 +201,13 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
               <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border">Cancelar</button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || userLoading}
                 className="px-4 py-2 rounded-lg text-white disabled:opacity-50"
                 style={{ backgroundColor: normalizedPrimary }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = primaryHover; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = normalizedPrimary; }}
               >
-                Guardar cambios
+                {loading || userLoading ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
           </div>

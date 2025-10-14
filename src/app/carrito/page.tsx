@@ -11,6 +11,7 @@ import CheckoutModal from "@/shared/ui/CheckoutModal";
 import AuthModal from "@/shared/ui/AuthModal";
 import { PaymentBackendService } from "@/shared/services/PaymentBackendService";
 import { useAuth } from "@/shared/providers/AuthProvider";
+import { AuthService } from "@/shared/services/AuthService";
 
 export default function CarritoPage() {
   const { config } = useStoreConfigContext();
@@ -20,6 +21,10 @@ export default function CarritoPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
   // Move this import to the top of the file
 
   const subtotal = getTotalPrice();
@@ -49,17 +54,63 @@ export default function CarritoPage() {
   };
 
   // Manejar proceder al pago
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = async () => {
     if (items.length === 0) return;
-    
-    // Si no está autenticado, mostrar modal de autenticación
+
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
-    
-    // Si ya está autenticado, mostrar modal de checkout
-    setShowCheckoutModal(true);
+
+    try {
+      // Obtener el token de Firebase
+      const token = await AuthService.getCurrentUserToken();
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      // Agregar el token de autorización si está disponible
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const userResponse = await fetch(`${apiUrl}/users/firebase/${user?.uid}`, {
+        method: 'GET',
+        headers
+      });
+
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json().catch(() => ({}));
+        const errorMsg = errorData.message || `Error ${userResponse.status}: ${userResponse.statusText}`;
+        throw new Error(errorMsg);
+      }
+
+      const userData = await userResponse.json();
+
+      console.log("Datos del usuario obtenidos:", userData);
+
+      // Preparar los datos del usuario para el modal de checkout
+      const checkoutFormData = {
+        nombre: userData.name || '',
+        email: userData.email || '',
+        telefono: userData.phone || '',
+        direccion: userData.deliveryAddress || userData.address || ''
+      };
+
+      console.log("Datos mapeados para el checkout:", checkoutFormData);
+
+      // Establecer los datos primero, luego mostrar el modal
+      setCheckoutData(checkoutFormData);
+      setShowCheckoutModal(true);
+    } catch (error) {
+      console.error("Error al obtener datos del usuario:", error);
+      const message = error instanceof Error ? error.message : "Hubo un problema al obtener la información del usuario. Por favor, intenta nuevamente.";
+      setErrorMessage(message);
+      setShowErrorModal(true);
+    }
   };
 
   // Manejar autenticación exitosa
@@ -418,7 +469,46 @@ export default function CarritoPage() {
         onClose={() => setShowCheckoutModal(false)}
         onSubmit={handleCheckoutSubmit}
         isLoading={isProcessingPayment}
+        initialData={checkoutData}
       />
+
+      {/* Modal de Error */}
+      {showErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slideUp">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-bold text-red-600">Error</h2>
+              <button 
+                onClick={() => setShowErrorModal(false)} 
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex-shrink-0">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-gray-900 font-medium">Ha ocurrido un error</p>
+                  <p className="text-gray-600 text-sm mt-1">{errorMessage}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

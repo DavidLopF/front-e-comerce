@@ -217,4 +217,17 @@ export class AuthService {
 
     return errorMessages[errorCode] || 'Ha ocurrido un error inesperado. Intenta nuevamente.';
   }
+
+  // Obtener token de ID del usuario actual
+  static async getCurrentUserToken(): Promise<string | null> {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return null;
+    
+    try {
+      return await currentUser.getIdToken();
+    } catch (error) {
+      console.error('Error obteniendo token:', error);
+      return null;
+    }
+  }
 }

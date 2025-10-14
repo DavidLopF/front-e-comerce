@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStoreConfigContext } from '@/shared/providers/StoreConfigProvider';
 
 interface CheckoutFormData {
@@ -15,17 +15,31 @@ interface CheckoutModalProps {
   onClose: () => void;
   onSubmit: (data: CheckoutFormData) => void;
   isLoading?: boolean;
+  initialData?: Partial<CheckoutFormData>; // Nueva propiedad para datos iniciales
 }
 
-export default function CheckoutModal({ isOpen, onClose, onSubmit, isLoading = false }: CheckoutModalProps) {
+export default function CheckoutModal({ isOpen, onClose, onSubmit, isLoading = false, initialData }: CheckoutModalProps) {
   const { config } = useStoreConfigContext();
   const [formData, setFormData] = useState<CheckoutFormData>({
-    nombre: '',
-    email: '',
-    telefono: '',
-    direccion: ''
+    nombre: initialData?.nombre || '',
+    email: initialData?.email || '',
+    telefono: initialData?.telefono || '',
+    direccion: initialData?.direccion || ''
   });
   const [errors, setErrors] = useState<Partial<CheckoutFormData>>({});
+
+  // Actualizar el formulario cuando initialData cambie
+  useEffect(() => {
+    if (initialData) {
+      console.log("CheckoutModal recibió initialData:", initialData);
+      setFormData({
+        nombre: initialData.nombre || '',
+        email: initialData.email || '',
+        telefono: initialData.telefono || '',
+        direccion: initialData.direccion || ''
+      });
+    }
+  }, [initialData]);
 
   // Colores dinámicos del tema
   const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
