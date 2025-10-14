@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import { useAuth } from "@/shared/providers/AuthProvider";
 
@@ -32,13 +32,7 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
   const normalizedPrimary = primaryColor.startsWith('#') ? primaryColor : `#${primaryColor}`;
 
   // Cargar datos del usuario desde el backend cuando se abre el modal
-  useEffect(() => {
-    if (isOpen) {
-      loadUserData();
-    }
-  }, [isOpen]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     if (!user?.email) {
       console.warn('Usuario no tiene email, no se pueden cargar datos.');
       return;
@@ -63,7 +57,13 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
     } finally {
       setUserLoading(false);
     }
-  };
+  }, [user?.email]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadUserData();
+    }
+  }, [isOpen, loadUserData]);
 
   if (!isOpen) return null;
 

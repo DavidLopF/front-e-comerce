@@ -10,7 +10,7 @@ interface Props {
   onComplete: () => void;
 }
 
-export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Props) {
+export default function CompleteProfileModal({ isOpen, onClose: _onClose, onComplete }: Props) {
   const { config } = useStoreConfigContext();
   const { user } = useAuth();
   

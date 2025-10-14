@@ -68,6 +68,6 @@ export async function POST(request: NextRequest) {
 }
 
 // También manejar GET requests (por si MercadoLibre hace verificaciones)
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({ status: 'ok', message: 'Webhook endpoint is working' });
 }

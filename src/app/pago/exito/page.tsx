@@ -8,7 +8,6 @@ import { useStoreConfigContext } from '@/shared/providers/StoreConfigProvider';
 function PagoExitoContent() {
   const { config } = useStoreConfigContext();
   const searchParams = useSearchParams();
-  const [paymentData, setPaymentData] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
   const paymentId = searchParams.get('payment_id');
