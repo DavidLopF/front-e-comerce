@@ -28,7 +28,7 @@ export const productService = {
   },
   getBySlug: async (slug: string): Promise<Product | null> => {
     try {
-      return await api.get(`/products/${slug}`) as unknown as Product;
+      return await api.get(`/producto/${slug}`) as unknown as Product;
     } catch (error) {
       console.error("Error fetching product by slug:", error);
       return null;
