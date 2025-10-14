@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/shared/ui/Navbar";
+import ConditionalNavbar from "@/shared/ui/ConditionalNavbar";
 import { StoreConfigProvider } from "@/shared/providers/StoreConfigProvider";
 import { AuthProvider } from "@/shared/providers/AuthProvider";
 
@@ -27,12 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js" defer></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StoreConfigProvider>
           <AuthProvider>
-            <Navbar />
+            <ConditionalNavbar />
             {children}
           </AuthProvider>
         </StoreConfigProvider>

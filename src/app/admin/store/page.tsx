@@ -1,19 +1,49 @@
 "use client";
 
 import { usePermissions } from '@/shared/hooks/usePermissions';
-import { useAuth } from '@/shared/providers/AuthProvider';
-import { useStoreConfigContext } from '@/shared/providers/StoreConfigProvider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import AdminLayout from '@/shared/ui/AdminLayout';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import { 
+  ArrowUpRight,
+  ArrowDownRight,
+  Package,
+  ShoppingCart,
+  Settings
+} from 'lucide-react';
+
+// Datos de ejemplo para las gráficas
+const revenueData = [
+  { name: 'Ene', value: 4000, customers: 2400 },
+  { name: 'Feb', value: 3000, customers: 1398 },
+  { name: 'Mar', value: 2000, customers: 9800 },
+  { name: 'Abr', value: 2780, customers: 3908 },
+  { name: 'May', value: 1890, customers: 4800 },
+  { name: 'Jun', value: 2390, customers: 3800 },
+  { name: 'Jul', value: 3490, customers: 4300 },
+];
+
+const deviceData = [
+  { name: 'Desktop', value: 55, color: '#3b82f6' },
+  { name: 'Mobile', value: 35, color: '#f97316' },
+  { name: 'Tablet', value: 10, color: '#06b6d4' },
+];
 
 export default function StoreAdminPage() {
-  const { user, logout } = useAuth();
   const { isStoreAdmin, loading, permissions } = usePermissions();
-  const { config } = useStoreConfigContext();
   const router = useRouter();
-
-  const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
-  const normalizedPrimary = primaryColor.startsWith('#') ? primaryColor : `#${primaryColor}`;
 
   useEffect(() => {
     // Verificar que el usuario tenga permisos de admin de tienda
@@ -23,14 +53,9 @@ export default function StoreAdminPage() {
     }
   }, [loading, permissions, isStoreAdmin, router]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Verificando permisos...</p>
@@ -41,7 +66,7 @@ export default function StoreAdminPage() {
 
   if (!isStoreAdmin()) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h1>
           <p className="text-gray-600 mb-4">No tienes permisos para acceder a esta página</p>
@@ -57,137 +82,336 @@ export default function StoreAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Panel de Administrador</h1>
-              <p className="text-gray-600">{config?.store?.name || 'Mi Tienda'}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.displayName?.[0] || user?.email?.[0] || 'A'}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{user?.displayName || 'Admin'}</p>
-                  <p className="text-xs text-gray-600">{user?.email}</p>
+    <AdminLayout currentPage="dashboard">
+      <div className="p-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          {/* Revenue Card */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Revenue</p>
+                <p className="text-2xl font-bold text-gray-900">$163.4k</p>
+                <div className="flex items-center mt-1">
+                  <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
+                  <span className="text-sm text-red-500">-2.4%</span>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
-              >
-                Cerrar Sesión
-              </button>
+              <div className="w-16 h-12">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData.slice(-4)}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Customers Card */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Customers</p>
+                <p className="text-2xl font-bold text-gray-900">1.5M</p>
+                <div className="flex items-center mt-1">
+                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">+1.24%</span>
+                </div>
+              </div>
+              <div className="w-16 h-12">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData.slice(-4)}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="customers" 
+                      stroke="#10b981" 
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Conversion Rate Card */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Conversion rate</p>
+                <p className="text-2xl font-bold text-gray-900">0.7%</p>
+                <div className="flex items-center mt-1">
+                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">+2%</span>
+                </div>
+              </div>
+              <div className="w-16 h-12">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData.slice(-4)}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#6366f1" 
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Device Stats */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Device Usage</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {deviceData.map((device, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div 
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: device.color }}
+                    ></div>
+                    <span className="text-sm text-gray-600">{device.name}</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">{device.value}%</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex">
+              {deviceData.map((device, index) => (
+                <div 
+                  key={index}
+                  className="h-2 first:rounded-l-full last:rounded-r-full"
+                  style={{ 
+                    backgroundColor: device.color,
+                    width: `${device.value}%`
+                  }}
+                ></div>
+              ))}
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Tarjeta de Productos */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 rounded-md" style={{ backgroundColor: `${normalizedPrimary}20` }}>
-                <svg className="w-8 h-8" style={{ color: normalizedPrimary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Website Performance */}
+          <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Website performance</h3>
+              <div className="text-sm text-gray-500">Last month website stats.</div>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div>
+                <div className="flex items-center mb-1">
+                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">4.5%</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">163.4M</div>
+                <div className="text-sm text-gray-500">Last month website visits</div>
               </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Productos</h3>
-                <p className="text-gray-600">Gestionar inventario</p>
+              
+              <div>
+                <div className="flex items-center mb-1">
+                  <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
+                  <span className="text-sm text-red-500">1.12%</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">$768k</div>
+                <div className="text-sm text-gray-500">Last month revenue</div>
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-1">
+                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">2%</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">6,567</div>
+                <div className="text-sm text-gray-500">Avg transaction</div>
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-1">
+                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-green-500">4.5%</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">6,010</div>
+                <div className="text-sm text-gray-500">Customers</div>
               </div>
             </div>
-            <div className="mt-4">
-              <button
-                className="w-full py-2 px-4 rounded-lg text-white font-medium"
-                style={{ backgroundColor: normalizedPrimary }}
-              >
-                Administrar Productos
-              </button>
+
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="customers" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Tarjeta de Pedidos */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 rounded-md" style={{ backgroundColor: `${normalizedPrimary}20` }}>
-                <svg className="w-8 h-8" style={{ color: normalizedPrimary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Pedidos</h3>
-                <p className="text-gray-600">Ver y gestionar pedidos</p>
+          {/* Referrers */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Referrers</h3>
+            </div>
+            
+            <div className="flex justify-center mb-6">
+              <div className="w-48 h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={deviceData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      dataKey="value"
+                    >
+                      {deviceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
-            <div className="mt-4">
-              <button
-                className="w-full py-2 px-4 rounded-lg text-white font-medium"
-                style={{ backgroundColor: normalizedPrimary }}
-              >
-                Ver Pedidos
-              </button>
+
+            <div className="text-center mb-4">
+              <div className="text-2xl font-bold text-gray-900">100k</div>
+              <div className="text-sm text-gray-500">Unique visitors</div>
+            </div>
+
+            <div className="space-y-3">
+              {deviceData.map((device, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div 
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: device.color }}
+                    ></div>
+                    <span className="text-sm text-gray-600">{device.name}</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">{device.value}%</span>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* Tarjeta de Configuración */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 rounded-md" style={{ backgroundColor: `${normalizedPrimary}20` }}>
-                <svg className="w-8 h-8" style={{ color: normalizedPrimary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+        {/* Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Gestionar Productos */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center mb-4">
+              <div className="p-3 rounded-lg bg-blue-100">
+                <Package className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Gestionar Productos</h3>
+                <p className="text-sm text-gray-600">Agregar, editar y administrar el inventario de productos</p>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Productos en stock</span>
+                <span>75%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+              </div>
+            </div>
+            
+            <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+              Administrar Productos
+              <Package className="ml-2 w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Gestionar Pedidos */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center mb-4">
+              <div className="p-3 rounded-lg bg-green-100">
+                <ShoppingCart className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Gestionar Pedidos</h3>
+                <p className="text-sm text-gray-600">Ver y procesar pedidos de clientes</p>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Pedidos pendientes</span>
+                <span>45%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-green-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+              </div>
+            </div>
+            
+            <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
+              Ver Pedidos
+              <ShoppingCart className="ml-2 w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Configuración */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center mb-4">
+              <div className="p-3 rounded-lg bg-purple-100">
+                <Settings className="w-6 h-6 text-purple-600" />
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold text-gray-900">Configuración</h3>
-                <p className="text-gray-600">Configurar tienda</p>
+                <p className="text-sm text-gray-600">Personalizar configuración de la tienda</p>
               </div>
             </div>
-            <div className="mt-4">
-              <button
-                className="w-full py-2 px-4 rounded-lg text-white font-medium"
-                style={{ backgroundColor: normalizedPrimary }}
-              >
-                Configurar Tienda
-              </button>
+            
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Configuración completa</span>
+                <span>90%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-purple-600 h-2 rounded-full" style={{ width: '90%' }}></div>
+              </div>
             </div>
+            
+            <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center">
+              Configurar Tienda
+              <Settings className="ml-2 w-4 h-4" />
+            </button>
           </div>
         </div>
-
-        {/* Información de Permisos */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de Permisos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Roles:</h4>
-              <ul className="space-y-1">
-                {permissions?.roles?.map((role, index) => (
-                  <li key={index} className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    {role}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Permisos:</h4>
-              <ul className="space-y-1">
-                {permissions?.permissions?.map((permission, index) => (
-                  <li key={index} className="text-sm text-gray-600 bg-blue-100 px-2 py-1 rounded">
-                    {permission}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
