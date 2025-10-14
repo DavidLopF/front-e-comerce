@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import { useAuth } from "@/shared/providers/AuthProvider";
+import { AuthService } from "../services/AuthService";
 
 interface Props {
   isOpen: boolean;
@@ -41,7 +42,12 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
     setUserLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/users?email=${encodeURIComponent(user.email)}`);
+      const token = await AuthService.getCurrentUserToken();
+      const response = await fetch(`${apiUrl}/users/firebase/${encodeURIComponent(user.uid)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       if (response.ok) {
         const userData = await response.json();

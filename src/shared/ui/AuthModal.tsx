@@ -5,6 +5,7 @@ import { useStoreConfigContext } from "@/shared/providers/StoreConfigProvider";
 import { useAuth } from "@/shared/providers/AuthProvider";
 import { AuthService } from "@/shared/services/AuthService";
 import CompleteProfileModal from "./CompleteProfileModal";
+import RoleBasedRedirect from "@/shared/components/RoleBasedRedirect";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -29,10 +30,18 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
 
   // Estado para controlar el modal de completar perfil
   const [showCompleteProfile, setShowCompleteProfile] = useState(false);
+  // Estado para controlar la redirección basada en roles
+  const [showRoleRedirect, setShowRoleRedirect] = useState(false);
 
   // Función para completar el perfil y cerrar todos los modales
   const handleCompleteProfile = () => {
     setShowCompleteProfile(false);
+    setShowRoleRedirect(true); // Activar redirección por roles después de completar perfil
+  };
+
+  // Función para manejar la redirección completada
+  const handleRedirectComplete = () => {
+    setShowRoleRedirect(false);
     onAuthSuccess();
   };
 
@@ -59,14 +68,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
     clearAuthError();
 
     try {
+      console.log('🔐 AuthModal: Iniciando login...');
       await login({
         email: loginEmail,
         password: loginPassword
       });
-      onAuthSuccess();
+      console.log('✅ AuthModal: Login exitoso, activando redirección por roles');
+      // Activar redirección por roles después del login
+      setShowRoleRedirect(true);
     } catch (error) {
       // El error ya se maneja en el contexto
-      console.error('Error en login:', error);
+      console.error('❌ AuthModal: Error en login:', error);
     }
   };
 
@@ -136,10 +148,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
           if (needsCompletion) {
             setShowCompleteProfile(true);
           } else {
-            onAuthSuccess();
+            setShowRoleRedirect(true);
           }
         } else {
-          onAuthSuccess();
+          setShowRoleRedirect(true);
         }
       }, 100);
     } catch (error) {
@@ -160,10 +172,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
           if (needsCompletion) {
             setShowCompleteProfile(true);
           } else {
-            onAuthSuccess();
+            setShowRoleRedirect(true);
           }
         } else {
-          onAuthSuccess();
+          setShowRoleRedirect(true);
         }
       }, 100);
     } catch (error) {
@@ -573,6 +585,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
         onClose={() => setShowCompleteProfile(false)}
         onComplete={handleCompleteProfile}
       />
+
+      {/* Redirección basada en roles - se muestra después del login exitoso */}
+      {showRoleRedirect && (
+        <RoleBasedRedirect onRedirectComplete={handleRedirectComplete} />
+      )}
     </div>
   );
 }
