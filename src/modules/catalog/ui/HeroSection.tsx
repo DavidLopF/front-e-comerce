@@ -329,8 +329,19 @@ export default function HeroSection() {
                                         className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300 hover:scale-105"
                                         title="Agregar al carrito"
                                       >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.293 1.293a1 1 0 01-1.414 0L3 13m4 0v6a2 2 0 002 2h6a2 2 0 002-2v-6m-4 2v4m-2-2h4" />
+                                        {/* Icono consistente del carrito - mismo diseño que en CarritoPage */}
+                                        <svg 
+                                          className="w-4 h-4" 
+                                          viewBox="0 0 24 24" 
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          strokeWidth={2} 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round"
+                                        >
+                                          <path d="M6 6h15l-1.5 9H9.5L6 6z" />
+                                          <circle cx="10" cy="19" r="1.4" />
+                                          <circle cx="18" cy="19" r="1.4" />
                                         </svg>
                                       </button>
                                     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { AiFillShopping } from "react-icons/ai";
+// Usamos un SVG inline para mayor control visual del icono vacío
 
 import { useState } from "react";
 import { useCartStore } from "@/shared/store/cartStore";
@@ -59,6 +59,14 @@ export default function CarritoPage() {
   };
 
   const normalizedPrimary = normalizeColor(primaryColor, "#3b82f6");
+
+  // Color para el ícono del carrito vacío. Se puede configurar desde
+  // config.theme.colors.emptyCartIcon (sin #) o usar el fallback gris de Tailwind
+  // Si el theme no define `emptyCartIcon`, hacemos un cast a any para evitar
+  // errores de tipo en tiempo de compilación y usamos el fallback gris.
+  const emptyCartIconColor = (config?.theme?.colors as any)?.emptyCartIcon
+    ? normalizeColor((config!.theme!.colors as any).emptyCartIcon, "#9CA3AF")
+    : "#9CA3AF";
 
   // Manejar eliminación con animación
   const handleRemoveItem = (productId: string) => {
@@ -216,7 +224,23 @@ export default function CarritoPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md px-6">
-          <AiFillShopping className="mx-auto mb-4 text-gray-400" size={150} />
+          {/* Icono inline del carrito: trazo controlado, color configurable y tamaño consistente */}
+          <svg
+            className="mx-auto mb-4"
+            width={48}
+            height={48}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={emptyCartIconColor}
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M6 6h15l-1.5 9H9.5L6 6z" />
+            <circle cx="10" cy="19" r="1.4" />
+            <circle cx="18" cy="19" r="1.4" />
+          </svg>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Tu carrito está vacío
           </h1>
