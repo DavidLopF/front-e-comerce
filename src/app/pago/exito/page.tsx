@@ -93,7 +93,7 @@ function PagoExitoContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center mb-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: normalizedPrimary }}></div>
           <p className="text-gray-600">Verificando pago...</p>
@@ -103,180 +103,168 @@ function PagoExitoContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header con animación de éxito */}
-        <div className="text-center mb-8 print:mb-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-bounce-once shadow-lg">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl w-full mx-auto">
+        {/* Header con animación de éxito - más compacto */}
+        <div className="text-center mb-2.5">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-1.5 animate-bounce-once shadow-lg">
+            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
             ¡Pago Confirmado!
           </h1>
-          <p className="text-gray-700 text-lg">
+          <p className="text-gray-700 text-sm">
             Tu pedido ha sido procesado exitosamente
           </p>
         </div>
 
-        {/* Factura */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 print:shadow-none print:rounded-none print:border-0">
-          {/* Header de la factura */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 sm:px-8 py-6 print:bg-blue-600" style={{ backgroundColor: normalizedPrimary }}>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  {/* Factura en layout horizontal */}
+  <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 print:shadow-none print:rounded-none print:border-0">
+          {/* Header de la factura - más compacto */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 sm:px-6 py-3 print:bg-blue-600" style={{ backgroundColor: normalizedPrimary }}>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
-                <h2 className="text-2xl font-bold text-white mb-1">
+                <h2 className="text-lg sm:text-xl font-bold text-white">
                   {config?.store?.name || 'Mi Tienda'}
                 </h2>
                 <p className="text-white text-sm opacity-90">Factura de Compra</p>
               </div>
               <div className="text-left sm:text-right">
-                <p className="text-white text-sm opacity-90">Fecha</p>
-                <p className="text-white font-semibold">{currentDate}</p>
+                <p className="text-white text-xs opacity-90">Fecha</p>
+                <p className="text-white text-sm font-semibold">{currentDate}</p>
               </div>
             </div>
           </div>
 
-          {/* Información de la transacción */}
-          <div className="px-6 sm:px-8 py-6 bg-blue-50 border-b border-gray-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <p className="text-xs text-gray-600 uppercase font-semibold mb-1">ID de Transacción</p>
-                <p className="font-mono text-sm text-gray-900 break-all">
-                  {paymentId || collectionId || 'N/A'}
-                </p>
+          {/* Contenido en dos columnas */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 sm:p-5">
+            {/* Columna izquierda: Info de transacción */}
+            <div className="space-y-3">
+              {/* Información de la transacción */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <h3 className="text-sm font-bold text-gray-900 mb-2.5">Información de Pago</h3>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase font-semibold">ID Transacción</p>
+                    <p className="font-mono text-xs text-gray-900 break-all">
+                      {paymentId || collectionId || 'N/A'}
+                    </p>
+                  </div>
+                  {externalReference && (
+                    <div>
+                      <p className="text-xs text-gray-600 uppercase font-semibold">Referencia</p>
+                      <p className="font-mono text-xs text-gray-900 break-all">
+                        {externalReference}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase font-semibold">Estado</p>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                      <span className="w-1.5 h-1.5 bg-green-600 rounded-full mr-1.5"></span>
+                      {collectionStatus === 'approved' ? 'Aprobado' : 'Completado'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase font-semibold">Método de Pago</p>
+                    <p className="text-sm text-gray-900 font-medium">MercadoPago</p>
+                  </div>
+                </div>
               </div>
-              {externalReference && (
-                <div>
-                  <p className="text-xs text-gray-600 uppercase font-semibold mb-1">Referencia</p>
-                  <p className="font-mono text-sm text-gray-900 break-all">
-                    {externalReference}
-                  </p>
+
+              {/* Mensaje de agradecimiento */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3.5 border border-blue-100">
+                <div className="flex items-start gap-2.5">
+                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: normalizedPrimary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">
+                      Gracias por tu compra
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Recibirás un correo con la confirmación y detalles de envío.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Columna derecha: Detalles del pedido */}
+            <div className="space-y-3">
+              {orderData && orderData.items.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-2.5">Detalles del Pedido</h3>
+                  
+                  {/* Lista compacta de productos */}
+                  <div className="space-y-2 mb-3">
+                    {orderData.items.map((item, index) => (
+                      <div key={index} className="flex justify-between items-start border-b border-gray-200 pb-2">
+                        <div className="flex-1 pr-2">
+                          <p className="text-gray-900 font-medium text-sm">{item.name}</p>
+                          <p className="text-gray-600 text-sm">Cant: {item.quantity} × {formatPriceCOP(item.unitPrice)}</p>
+                        </div>
+                        <p className="text-gray-900 font-semibold whitespace-nowrap text-sm">
+                          {formatPriceCOP(item.total)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Totales compactos */}
+                  <div className="space-y-1.5 pt-2 border-t-2 border-gray-300">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-gray-900 font-medium">{formatPriceCOP(orderData.subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Envío:</span>
+                      <span className="text-gray-900 font-medium">{formatPriceCOP(orderData.shipping)}</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold pt-1.5 border-t border-gray-300">
+                      <span className="text-gray-900">Total:</span>
+                      <span className="text-gray-900">{formatPriceCOP(orderData.total)}</span>
+                    </div>
+                  </div>
                 </div>
               )}
-              <div>
-                <p className="text-xs text-gray-600 uppercase font-semibold mb-1">Estado</p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
-                  <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
-                  {collectionStatus === 'approved' ? 'Aprobado' : 'Completado'}
-                </span>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 uppercase font-semibold mb-1">Método de Pago</p>
-                <p className="text-sm text-gray-900 font-medium">MercadoPago</p>
-              </div>
             </div>
           </div>
 
-          {/* Detalles del pedido */}
-          {orderData && orderData.items.length > 0 && (
-            <div className="px-6 sm:px-8 py-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Detalles del Pedido</h3>
-              
-              {/* Tabla de productos */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200">
-                      <th className="text-left py-3 px-2 text-xs font-semibold text-gray-600 uppercase">Producto</th>
-                      <th className="text-center py-3 px-2 text-xs font-semibold text-gray-600 uppercase">Cant.</th>
-                      <th className="text-right py-3 px-2 text-xs font-semibold text-gray-600 uppercase">Precio Unit.</th>
-                      <th className="text-right py-3 px-2 text-xs font-semibold text-gray-600 uppercase">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orderData.items.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-4 px-2 text-sm text-gray-900">{item.name}</td>
-                        <td className="py-4 px-2 text-sm text-gray-600 text-center">{item.quantity}</td>
-                        <td className="py-4 px-2 text-sm text-gray-600 text-right">
-                          {formatPriceCOP(item.unitPrice)}
-                        </td>
-                        <td className="py-4 px-2 text-sm font-semibold text-gray-900 text-right">
-                          {formatPriceCOP(item.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Totales */}
-              <div className="mt-6 pt-6 border-t-2 border-gray-200">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="text-gray-900 font-medium">{formatPriceCOP(orderData.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Envío:</span>
-                    <span className="text-gray-900 font-medium">{formatPriceCOP(orderData.shipping)}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
-                    <span className="text-gray-900">Total:</span>
-                    <span className="text-gray-900">{formatPriceCOP(orderData.total)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Mensaje de agradecimiento */}
-          <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-200">
-            <div className="flex items-start gap-3">
-              <svg className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: normalizedPrimary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <p className="text-sm font-semibold text-gray-900 mb-1">
-                  Gracias por tu compra
-                </p>
-                <p className="text-sm text-gray-700">
-                  Recibirás un correo electrónico con la confirmación de tu pedido y los detalles de envío.
-                  Si tienes alguna pregunta, no dudes en contactarnos.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="px-6 sm:px-8 py-6 bg-white print:hidden">
-            <div className="flex flex-col sm:flex-row gap-3">
+          {/* Botones de acción - en una sola fila */}
+          <div className="px-4 sm:px-5 py-3 bg-gray-50 border-t border-gray-200 print:hidden">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={handlePrint}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-xl transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors border border-gray-300"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
-                Imprimir Factura
+                <span className="text-sm">Imprimir</span>
               </button>
               
               <Link
                 href="/store"
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
                 style={{ backgroundColor: normalizedPrimary }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                Continuar Comprando
+                <span className="text-sm">Seguir Comprando</span>
+              </Link>
+
+              <Link
+                href="/"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors border border-gray-300"
+              >
+                <span className="text-sm">Ir al Inicio</span>
               </Link>
             </div>
-            
-            <Link
-              href="/"
-              className="block text-center w-full text-gray-600 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors mt-3"
-            >
-              Volver al Inicio
-            </Link>
           </div>
-        </div>
-
-        {/* Footer info */}
-        <div className="text-center mt-8 text-sm text-gray-600 print:hidden bg-white rounded-lg py-4 px-6 shadow-sm">
-          <p>Si tienes algún problema con tu pedido, contáctanos a través de nuestros canales de atención.</p>
         </div>
       </div>
 
