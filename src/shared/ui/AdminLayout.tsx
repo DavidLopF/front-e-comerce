@@ -16,7 +16,6 @@ import {
   Menu,
   ChevronLeft,
   Bell,
-  User,
   Edit3,
   ChevronDown
 } from 'lucide-react';

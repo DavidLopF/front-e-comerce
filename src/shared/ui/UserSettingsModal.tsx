@@ -19,7 +19,7 @@ interface UserData {
 
 export default function UserSettingsModal({ isOpen, onClose }: Props) {
   const { config } = useStoreConfigContext();
-  const { user, updateProfile, logout, loading } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
 
   const [displayName, setDisplayName] = useState<string>(user?.displayName || "");
   const [photoURL, setPhotoURL] = useState<string>(user?.photoURL || "");
@@ -71,6 +71,7 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
     }
   }, [isOpen, loadUserData]);
 
+  // No mostrar el modal si no está abierto
   if (!isOpen) return null;
 
   const handleSave = async (e: React.FormEvent) => {
@@ -207,13 +208,13 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
               <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border">Cancelar</button>
               <button
                 type="submit"
-                disabled={loading || userLoading}
+                disabled={userLoading}
                 className="px-4 py-2 rounded-lg text-white disabled:opacity-50"
                 style={{ backgroundColor: normalizedPrimary }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = primaryHover; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = normalizedPrimary; }}
               >
-                {loading || userLoading ? 'Guardando...' : 'Guardar cambios'}
+                {userLoading ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
           </div>
