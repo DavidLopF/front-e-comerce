@@ -105,17 +105,6 @@ export default function HeroSection() {
     setCurrentSlide((prev) => (prev - 1 + activeSlides.length) % activeSlides.length);
   };
 
-  const scrollToCatalog = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    const catalogElement = document.getElementById('catalogo');
-    if (catalogElement) {
-      catalogElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  };
-
   // Si está cargando o el hero está deshabilitado
   if (loading) {
     console.log('⏳ HeroSection: Mostrando pantalla de carga');
@@ -303,7 +292,7 @@ export default function HeroSection() {
                                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                                 </div>
                               ) : (
-                                featuredProducts.map((product, idx) => (
+                                featuredProducts.map((product) => (
                                   <div 
                                     key={product.id} 
                                     className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/20 transition-all duration-300"

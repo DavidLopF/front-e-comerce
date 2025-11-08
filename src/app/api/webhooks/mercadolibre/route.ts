@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBackendService';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     // Verificar la clave secreta si está configurada
     const webhookSecret = process.env.MERCADOLIBRE_WEBHOOK_SECRET;

@@ -10,13 +10,6 @@ interface Props {
   onClose: () => void;
 }
 
-interface UserData {
-  name: string;
-  photoURL: string;
-  phone: string;
-  deliveryAddress: string;
-}
-
 export default function UserSettingsModal({ isOpen, onClose }: Props) {
   const { config } = useStoreConfigContext();
   const { user, updateProfile, logout } = useAuth();
@@ -63,7 +56,7 @@ export default function UserSettingsModal({ isOpen, onClose }: Props) {
     } finally {
       setUserLoading(false);
     }
-  }, [user?.email]);
+  }, [user?.email, user?.displayName, user?.photoURL, user?.uid]);
 
   useEffect(() => {
     if (isOpen) {

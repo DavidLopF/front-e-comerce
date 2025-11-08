@@ -45,7 +45,7 @@ function PagoExitoContent() {
           const cart = JSON.parse(cartData);
           const items = cart.state?.items || [];
           
-          const orderItems: OrderItem[] = items.map((item: any) => {
+          const orderItems: OrderItem[] = items.map((item: { product: { name: string; discount?: number; priceCents: number }; quantity: number }) => {
             const finalPrice = item.product.discount && item.product.discount > 0
               ? item.product.priceCents * (100 - item.product.discount) / 100
               : item.product.priceCents;

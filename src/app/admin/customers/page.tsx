@@ -21,7 +21,6 @@ import {
   Eye,
   Mail,
   Phone,
-  MapPin,
   Calendar,
   ShoppingBag,
   DollarSign

@@ -12,9 +12,6 @@ export default function SuperAdminPage() {
   const { config } = useStoreConfigContext();
   const router = useRouter();
 
-  const primaryColor = config?.theme?.colors?.primary || '#3b82f6';
-  const normalizedPrimary = primaryColor.startsWith('#') ? primaryColor : `#${primaryColor}`;
-
   useEffect(() => {
     // Verificar que el usuario tenga permisos de super admin
     // Solo redirigir si los permisos ya se cargaron y el usuario NO es super admin

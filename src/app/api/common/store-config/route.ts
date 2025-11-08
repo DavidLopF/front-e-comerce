@@ -134,7 +134,7 @@ const MOCK_STORE_CONFIG = {
  * 2. Parámetro storeId en query
  * 3. Header X-Store-ID
  */
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     // Por ahora usamos datos mock para desarrollo
     // En producción, aquí conectarías con tu base de datos
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Manejar OPTIONS para CORS
-export async function OPTIONS(_request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

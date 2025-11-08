@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { CartState, CartItem } from '../types/Cart';
+import { CartState } from '../types/Cart';
 import { Product } from '@/modules/catalog/types/Product';
 
 export const useCartStore = create<CartState>()(
