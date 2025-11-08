@@ -6,6 +6,16 @@ export interface BackendCreatePreferenceRequest {
   items: BackendItemRequest[];
   notification_url?: string;
   external_reference?: string;
+  payer?: {
+    name?: string;
+    email?: string;
+    phone?: {
+      number?: string;
+    };
+    address?: {
+      street_name?: string;
+    };
+  };
 }
 
 export interface BackendItemRequest {
@@ -88,8 +98,24 @@ export class PaymentBackendService {
       const requestBody: BackendCreatePreferenceRequest = {
         items: backendItems,
         external_reference: externalReference,
-        notification_url: notificationUrl
+        notification_url: notificationUrl,
+        payer: customerInfo ? {
+          name: customerInfo.name,
+          email: userEmail,
+          phone: customerInfo.phone ? {
+            number: customerInfo.phone
+          } : undefined,
+          address: customerInfo.address ? {
+            street_name: customerInfo.address
+          } : undefined
+        } : undefined
       };
+
+      console.log('📤 Enviando request al backend:', {
+        url: `${this.backendUrl}/payments/create-preferences`,
+        body: requestBody,
+        payer: requestBody.payer
+      });
 
       const fullUrl = `${this.backendUrl}/payments/create-preferences`;
       const token = await AuthService.getCurrentUserToken();

@@ -26,17 +26,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className="bg-white" style={{ colorScheme: 'light' }}>
       <head>
+        <meta name="color-scheme" content="light" />
         <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js" defer></script>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
+        style={{ colorScheme: 'light' }}
       >
         <StoreConfigProvider>
           <AuthProvider>
             <ConditionalNavbar />
-            {children}
+            <div className="bg-white min-h-screen">
+              {children}
+            </div>
           </AuthProvider>
         </StoreConfigProvider>
       </body>
