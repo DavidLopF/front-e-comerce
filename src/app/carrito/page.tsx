@@ -62,10 +62,15 @@ export default function CarritoPage() {
 
   // Color para el ícono del carrito vacío. Se puede configurar desde
   // config.theme.colors.emptyCartIcon (sin #) o usar el fallback gris de Tailwind
-  // Si el theme no define `emptyCartIcon`, hacemos un cast a any para evitar
-  // errores de tipo en tiempo de compilación y usamos el fallback gris.
-  const emptyCartIconColor = (config?.theme?.colors as any)?.emptyCartIcon
-    ? normalizeColor((config!.theme!.colors as any).emptyCartIcon, "#9CA3AF")
+  // Definimos una interfaz extendida para incluir propiedades opcionales del tema
+  interface ExtendedThemeColors {
+    emptyCartIcon?: string;
+    [key: string]: string | undefined;
+  }
+  
+  const extendedColors = config?.theme?.colors as ExtendedThemeColors;
+  const emptyCartIconColor = extendedColors?.emptyCartIcon
+    ? normalizeColor(extendedColors.emptyCartIcon, "#9CA3AF")
     : "#9CA3AF";
 
   // Manejar eliminación con animación

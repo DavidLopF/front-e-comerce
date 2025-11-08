@@ -159,7 +159,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
     }
   };
 
-  // Handle Facebook login
+  // Handle Facebook login - COMMENTED OUT UNTIL NEEDED
+  /*
   const handleFacebookLogin = async () => {
     clearAuthError();
     try {
@@ -182,6 +183,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
       console.error('Error en login con Facebook:', error);
     }
   };
+  */
 
   if (!isOpen) return null;
 

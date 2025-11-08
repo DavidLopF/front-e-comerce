@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { MercadoLibreBackendService } from '@/shared/services/MercadoLibreBackendService';
 
 export async function POST(request: Request) {
