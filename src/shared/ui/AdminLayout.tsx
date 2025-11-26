@@ -64,7 +64,7 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
     { id: 'orders', icon: ShoppingCart, label: 'Pedidos', href: '/admin/orders' },
     { id: 'customers', icon: Users, label: 'Clientes', href: '/admin/customers' },
     { id: 'analytics', icon: BarChart3, label: 'Analíticas', href: '/admin/analytics' },
-    { id: 'settings', icon: Settings, label: 'Configuración', href: '/admin/settings' },
+    { id: 'settings', icon: Settings, label: 'Configuración', href: '/admin/configuracion' },
   ];
 
   const handleNavigation = (href: string) => {
