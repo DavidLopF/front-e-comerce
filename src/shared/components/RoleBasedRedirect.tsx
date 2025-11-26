@@ -22,16 +22,16 @@ export default function RoleBasedRedirect({ onRedirectComplete }: RoleBasedRedir
     }
 
     const userType = getUserType();
+    hasRedirected.current = true;
 
-    // Solo redirigir para usuarios con roles administrativos
+    // Redirigir según el tipo de usuario
     if (userType === 'super-admin' || userType === 'admin-store') {
-      hasRedirected.current = true;
-      
       const redirectPath = userType === 'super-admin' ? '/admin/super' : '/admin/store';
       router.push(redirectPath);
-      
-      onRedirectComplete?.();
     }
+    
+    // Siempre llamar a onRedirectComplete para cerrar el modal (incluyendo clientes)
+    onRedirectComplete?.();
   }, [isAuthenticated, user, getUserType, permissionsLoading, router, onRedirectComplete]);
 
   // Mostrar loading mientras se procesan los permisos
