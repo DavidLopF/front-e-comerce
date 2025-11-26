@@ -44,15 +44,7 @@ export default function HeroSection() {
   // Filtrar slides activos (si no tienen isActive, asumirlos como activos)
   const activeSlides = slides.filter(slide => slide.isActive !== false);
 
-  // Debug logging
-  console.log('🎭 HeroSection Debug:', {
-    loading,
-    isHeroEnabled,
-    slidesCount: slides.length,
-    activeSlidesCount: activeSlides.length,
-    config: config?.hero,
-    slides: slides.map(s => ({ id: s.id, title: s.title, isActive: s.isActive }))
-  });
+  
 
   useEffect(() => {
     // Efecto parallax con scroll
@@ -79,10 +71,8 @@ export default function HeroSection() {
     const loadFeaturedProducts = async () => {
       try {
         setProductsLoading(true);
-        console.log('🎭 HeroSection: Cargando productos destacados...');
         const products = await productService.getFeatured(3);
         setFeaturedProducts(products);
-        console.log('✅ HeroSection: Productos destacados cargados:', products);
       } catch (error) {
         console.error('❌ HeroSection: Error cargando productos destacados:', error);
       } finally {
@@ -107,7 +97,6 @@ export default function HeroSection() {
 
   // Si está cargando o el hero está deshabilitado
   if (loading) {
-    console.log('⏳ HeroSection: Mostrando pantalla de carga');
     return (
       <section className="relative h-[500px] overflow-hidden rounded-2xl mb-8 bg-gray-200 animate-pulse">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -121,15 +110,10 @@ export default function HeroSection() {
   }
 
   if (!isHeroEnabled || activeSlides.length === 0) {
-    console.log('❌ HeroSection: No se renderiza porque:', {
-      isHeroEnabled,
-      activeSlidesLength: activeSlides.length,
-      slides: slides.map(s => ({ id: s.id, isActive: s.isActive }))
-    });
+
     return null; // No mostrar nada si está deshabilitado
   }
 
-  console.log('✅ HeroSection: Renderizando hero con', activeSlides.length, 'slides');
 
   return (
     <section className="relative h-screen w-full overflow-hidden mb-8">

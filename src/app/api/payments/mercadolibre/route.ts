@@ -5,14 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { userEmail, externalReference, customerInfo } = body;
-    
-    console.log('🔍 DEBUG - API Payment Request (usando backend NestJS):', {
-      userEmail,
-      externalReference,
-      customerInfo,
-      cartItemsCount: body.cartItems?.length || 0,
-      backendUrl: process.env.NEXT_PUBLIC_API_URL
-    });
+
 
     if (!userEmail) {
       return NextResponse.json(
@@ -54,13 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Obtener la URL de inicialización del backend
     const initPointUrl = paymentBackendService.getInitPointUrl(paymentResponse);
-    
-    console.log('🔍 DEBUG - Payment Response (desde backend):', {
-      preferenceId: paymentResponse.data?.preferenceId,
-      initPointUrl,
-      externalReference: paymentResponse.data?.externalReference,
-      success: paymentResponse.success
-    });
+  
 
     return NextResponse.json({
       success: true,

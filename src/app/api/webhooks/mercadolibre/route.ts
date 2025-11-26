@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     if (webhookSecret) {
       const signature = request.headers.get('x-signature');
       if (!signature) {
-        console.log('Webhook sin firma - posiblemente no válido');
+      
         return NextResponse.json({ error: 'Sin firma' }, { status: 401 });
       }
       // Nota: Aquí deberías implementar la validación real de la firma
@@ -18,13 +18,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, data } = body;
 
-    console.log('Webhook recibido de MercadoLibre:', { type, data });
 
     if (type === 'payment' && data?.id) {
       const mercadoLibreBackendService = new MercadoLibreBackendService();
       const paymentStatus = await mercadoLibreBackendService.getPaymentStatus(data.id);
 
-      console.log('Estado del pago:', paymentStatus);
 
       // Aquí puedes agregar lógica adicional según el estado del pago
       switch (paymentStatus.status) {

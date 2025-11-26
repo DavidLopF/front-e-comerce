@@ -140,7 +140,6 @@ export async function GET() {
     // En producción, aquí conectarías con tu base de datos
     const storeConfig = MOCK_STORE_CONFIG;
     
-    console.log('✅ Configuración mock cargada para tienda:', storeConfig.store.name);
 
     // Respuesta exitosa
     const response: StoreConfigResponse = {
